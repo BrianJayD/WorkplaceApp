@@ -13,7 +13,7 @@ This is a repository to hold the code for CSCI 4100U's final project.
 
 | Section | Name | Status
 |---|---|---|
-| Sign In | N/A | Not Started
+| Sign In | Brian | Created XML layout but no functionality
 | Acc. Sign Up | N/A | Not Started
 | Comp. Sign Up | N/A | Not Started
 | Single Chat | N/A | Not Started
