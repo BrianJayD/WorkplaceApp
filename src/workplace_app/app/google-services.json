@@ -1,0 +1,63 @@
+{
+  "project_info": {
+    "project_number": "587122358144",
+    "firebase_url": "https://workplaceapp-47870.firebaseio.com",
+    "project_id": "workplaceapp-47870",
+    "storage_bucket": "workplaceapp-47870.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:587122358144:android:98beaeb6dcd4f2b1",
+        "android_client_info": {
+          "package_name": "ca.uoit.csci4100u.workplace_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "587122358144-mth3sj8akfhgal3uejh48dglcn4trr85.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ca.uoit.csci4100u.workplace_app",
+            "certificate_hash": "d6918a1285f9d830f03d43c1aa550b46e3ecf4e4"
+          }
+        },
+        {
+          "client_id": "587122358144-k08k0ectnnhpp0467872ukaagplsb3as.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ca.uoit.csci4100u.workplace_app",
+            "certificate_hash": "7ede9bf2723a9b012d2a4c804809851f64fe6fbb"
+          }
+        },
+        {
+          "client_id": "587122358144-rji65r78gkf4h1u998vjf1f79ra5p04a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD1DBWfLfLBmuzOkkEki6nGCpgjwH6CFVU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "587122358144-rji65r78gkf4h1u998vjf1f79ra5p04a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

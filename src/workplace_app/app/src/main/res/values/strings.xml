@@ -1,8 +1,9 @@
 <resources>
     <string name="app_name">workplace_app</string>
-    <string name="username">Username</string>
+    <string name="email">Email</string>
     <string name="password">Password</string>
     <string name="logIn">Login</string>
     <string name="signUp">Sign Up</string>
     <string name="resetPass">Forgot Password?</string>
+    <string name="back">Back</string>
 </resources>
