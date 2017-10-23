@@ -14,4 +14,8 @@
     <string name="reset_password_email_sent">Reset password email sent</string>
     <string name="reset_password_email_failed">Reset password email failed</string>
     <string name="company_name">Company Name</string>
+    <string name="settings">Settings</string>
+    <string name="company_sign_up">Company Sign Up</string>
+    <string name="chat_rooms">Chat Rooms</string>
+    <string name="sign_out">Sign Out</string>
 </resources>

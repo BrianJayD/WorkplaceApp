@@ -15,7 +15,7 @@ This is a repository to hold the code for CSCI 4100U's final project.
 |---|---|---|
 | Sign In | Akira | Done.
 | Acc. Sign Up | Akira | Done. Could be made to look nicer.
-| Comp. Sign Up | N/A | Not Started
+| Comp. Sign Up | Akira | Done. Could be made to look nicer
 | Single Chat | N/A | Not Started
 | Reset Password| Akira | Done. Could be made to look nicer.
-| Landing Page | Akira | No work is done.
+| Landing Page | Akira | Placeholder buttons in place. Needs work.
