@@ -35,13 +35,13 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.login);
 
         mAuth = FirebaseAuth.getInstance();
-        if (mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null && mAuth.getCurrentUser().isEmailVerified()) {
             // TODO: Check if debug statements need to be added into a resource file
-            Log.d(TAG, "currentUserIsSet");
+            Log.d(TAG, "onCreate:currentUserIsSet");
             Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
             startActivity(intent);
         } else {
-            Log.d(TAG, "currentUserIsNotSet");
+            Log.d(TAG, "onCreate:currentUserIsNotSet");
         }
     }
 
@@ -71,7 +71,17 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * A helper method used to log into a new Firebase account. This function will create a toast
+     * Handles the onClick function for the 'Forgot Password?' TextView. This function creates a sub-activity
+     * 'ResetPasswordActivity' which will allow a user to send an email to reset their password
+     * @param view The view that has been clicked (the TextView)
+     */
+    public void handleReset(View view) {
+        Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * A helper function used to log into a Firebase account. This function will create a toast
      * if the log in authentication was not successful. Otherwise, it will start the sub-activity
      * 'LandingPageActivity'
      * @param email A string representation of the user-specified email address
@@ -82,13 +92,18 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "signIn:success");
-                            Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
-                            startActivity(intent);
+                        if (mAuth.getCurrentUser().isEmailVerified()) {
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "signIn:success");
+                                Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
+                                startActivity(intent);
+                            } else {
+                                Log.d(TAG, "signIn:failure", task.getException());
+                                Toast.makeText(LoginActivity.this, R.string.authentication_failed,
+                                        Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            Log.d(TAG, "signIn:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, R.string.authentication_failed,
+                            Toast.makeText(LoginActivity.this, R.string.verify_email,
                                     Toast.LENGTH_SHORT).show();
                         }
                     }

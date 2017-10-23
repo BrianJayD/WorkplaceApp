@@ -12,6 +12,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 /**
  * The 'SignUpActivity' class which is the activity the user sees when needing to create a new
@@ -59,7 +60,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     /**
-     * A helper method used to create a new Firebase account. This function will create a toast
+     * A helper function used to create a new Firebase account. This function will create a toast
      * if the account was created successfully or not
      * @param email A string representation of the user-specified email address
      * @param password A string representation of the user-specified password
@@ -71,13 +72,35 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "createAccount:success");
-                            String successMessage = getResources().getString(R.string.account_created);
-                            Toast.makeText(SignUpActivity.this, successMessage, Toast.LENGTH_SHORT).show();
+                            sendEmailVerification();
                         } else {
                             Log.w(TAG, "createAccount:failure", task.getException());
                             // TODO: Check if we need to do our own error messages since it's not in a resource file
                             String errorMessage = task.getException().getMessage();
                             Toast.makeText(SignUpActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * A helper function to send an email verification to the email given in the sign up information
+     */
+    private void sendEmailVerification() {
+        final FirebaseUser user = mAuth.getCurrentUser();
+        user.sendEmailVerification()
+                .addOnCompleteListener(this, new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            Toast.makeText(SignUpActivity.this,
+                                    getString(R.string.success_verification) + " " +  user.getEmail(),
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Log.e(TAG, "sendEmailVerification", task.getException());
+                            Toast.makeText(SignUpActivity.this,
+                                    R.string.failed_verification,
+                                    Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

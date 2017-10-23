@@ -72,6 +72,7 @@
             android:clickable="true"
             android:text="@string/resetPass"
             android:textColorHighlight="@color/colorPrimary"
+            android:onClick="handleReset"
             android:textStyle="italic"
             android:contextClickable="true"/>
 

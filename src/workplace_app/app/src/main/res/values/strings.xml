@@ -6,6 +6,11 @@
     <string name="signUp">Sign Up</string>
     <string name="resetPass">Forgot Password?</string>
     <string name="back">Back</string>
-    <string name="account_created">Account Created Successfully</string>
-    <string name="authentication_failed">Authentication Failed</string>
+    <string name="authentication_failed">Authentication failed</string>
+    <string name="failed_verification">Failed to send verification email.</string>
+    <string name="success_verification">Verification email sent to</string>
+    <string name="verify_email">Please verify your email address</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_password_email_sent">Reset password email sent</string>
+    <string name="reset_password_email_failed">Reset password email failed</string>
 </resources>
