@@ -75,8 +75,7 @@
             android:onClick="handleReset"
             android:textStyle="italic"
             android:contextClickable="true"/>
-
-
+        
     </LinearLayout>
 
 </RelativeLayout>

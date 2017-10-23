@@ -4,14 +4,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 /**
- * The 'CompanySignUpActivity' class which is the activity the user sees when creating a new
- * company
+ * The 'CompanySignUpActivity' class which is the activity the user sees when creating a new company
  */
 public class CompanySignUpActivity extends AppCompatActivity {
 
@@ -56,6 +56,9 @@ public class CompanySignUpActivity extends AppCompatActivity {
             mDatabase.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
 
             mDatabase.child(USERS).child(userId).child(companyId).setValue(true);
+
+            Toast.makeText(CompanySignUpActivity.this, R.string.company_created_successfully,
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

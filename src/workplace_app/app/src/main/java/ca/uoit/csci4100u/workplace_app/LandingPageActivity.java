@@ -60,10 +60,12 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     /**
-     * TODO: Fill this in after the code is written
+     * Handles the onClick function for the 'Settings' button. This function will start the
+     * sub-activity 'SettingsActivity'.
      * @param view The view that has been clicked (the button)
      */
     public void handleSettings(View view) {
-
+        Intent intent = new Intent(LandingPageActivity.this, SettingsActivity.class);
+        startActivity(intent);
     }
 }

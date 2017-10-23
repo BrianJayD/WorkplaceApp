@@ -18,4 +18,18 @@
     <string name="company_sign_up">Company Sign Up</string>
     <string name="chat_rooms">Chat Rooms</string>
     <string name="sign_out">Sign Out</string>
+    <string name="display_name">Display Name</string>
+    <string name="old_password">Old Password</string>
+    <string name="update">Update</string>
+    <string name="new_password">New Password</string>
+    <string name="new_email">New Email</string>
+    <string name="new_display_name">New Display Name</string>
+    <string name="check">✓</string>
+    <string name="display_name_update_success">Display Name Update Successful</string>
+    <string name="display_name_update_fail">Display Name Update Failed</string>
+    <string name="email_update_success">Email Update Successful</string>
+    <string name="email_update_fail">Email Update Failed</string>
+    <string name="password_update_success">Password Update Successful</string>
+    <string name="password_update_fail">Password Update Failed</string>
+    <string name="company_created_successfully">Company Created Successfully</string>
 </resources>

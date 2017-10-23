@@ -3,7 +3,6 @@ package ca.uoit.csci4100u.workplace_app;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -13,21 +12,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 /**
- * The 'ResetPasswordActivity' class which is used to reset the user's password if they forgot it
+ * The 'SupportActivity' class which is used to reset the user's password if they forgot it
  */
-public class ResetPasswordActivity extends AppCompatActivity {
+public class SupportActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
     /**
-     * The onCreate method for the 'ResetPasswordActivity' class. This function initializes the activity
+     * The onCreate method for the 'SupportActivity' class. This function initializes the activity
      * and sets the member variables.
      * @param savedInstanceState The saved instance state of the activity
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.reset_password);
+        setContentView(R.layout.support);
 
         mAuth = FirebaseAuth.getInstance();
     }
@@ -38,7 +37,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleReset(View view) {
-        String email = ((EditText) findViewById(R.id.resetEmail)).getText().toString();
+        String email = ((EditText) findViewById(R.id.supportEmail)).getText().toString();
 
         if (!email.isEmpty()) {
             resetEmail(email);
@@ -47,7 +46,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
 
     /**
      * Handles the onClick function for the 'Back' button. This will close the current sub-activity
-     * 'ResetPasswordActivity'
+     * 'SupportActivity'
      * @param view The view that has been clicked (the button)
      */
     public void handleBack(View view) {
@@ -65,10 +64,10 @@ public class ResetPasswordActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(ResetPasswordActivity.this, R.string.reset_password_email_sent,
+                            Toast.makeText(SupportActivity.this, R.string.reset_password_email_sent,
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(ResetPasswordActivity.this, R.string.reset_password_email_failed,
+                            Toast.makeText(SupportActivity.this, R.string.reset_password_email_failed,
                                     Toast.LENGTH_SHORT).show();
                         }
                     }

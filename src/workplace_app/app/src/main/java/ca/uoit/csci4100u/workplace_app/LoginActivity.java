@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -70,11 +69,11 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Handles the onClick function for the 'Forgot Password?' TextView. This function creates a sub-activity
-     * 'ResetPasswordActivity' which will allow a user to send an email to reset their password
+     * 'SupportActivity' which will allow a user to send an email to reset their password
      * @param view The view that has been clicked (the TextView)
      */
     public void handleReset(View view) {
-        Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+        Intent intent = new Intent(LoginActivity.this, SupportActivity.class);
         startActivity(intent);
     }
 
