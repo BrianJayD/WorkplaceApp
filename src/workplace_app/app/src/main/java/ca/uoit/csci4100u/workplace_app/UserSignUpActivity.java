@@ -15,16 +15,15 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 /**
- * The 'SignUpActivity' class which is the activity the user sees when needing to create a new
+ * The 'UserSignUpActivity' class which is the activity the user sees when needing to create a new
  * account. This handles creating a new account and moving back to the 'LoginActivity'
  */
-public class SignUpActivity extends AppCompatActivity {
+public class UserSignUpActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private static final String TAG = "SignUpActivity";
 
     /**
-     * The onCreate method for the 'SignUpActivity' class. This function initializes the activity
+     * The onCreate method for the 'UserSignUpActivity' class. This function initializes the activity
      * and sets the member variables.
      * @param savedInstanceState The saved instance state of the activity
      */
@@ -52,7 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     /**
      * Handles the onClick function for the 'Back' button. This will close the current sub-activity
-     * 'SignUpActivity'
+     * 'UserSignUpActivity'
      * @param view The view that has been clicked (the button)
      */
     public void handleBack(View view) {
@@ -71,13 +70,11 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "createAccount:success");
                             sendEmailVerification();
                         } else {
-                            Log.w(TAG, "createAccount:failure", task.getException());
                             // TODO: Check if we need to do our own error messages since it's not in a resource file
                             String errorMessage = task.getException().getMessage();
-                            Toast.makeText(SignUpActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(UserSignUpActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -93,12 +90,11 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task task) {
                         if (task.isSuccessful()) {
-                            Toast.makeText(SignUpActivity.this,
+                            Toast.makeText(UserSignUpActivity.this,
                                     getString(R.string.success_verification) + " " +  user.getEmail(),
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            Log.e(TAG, "sendEmailVerification", task.getException());
-                            Toast.makeText(SignUpActivity.this,
+                            Toast.makeText(UserSignUpActivity.this,
                                     R.string.failed_verification,
                                     Toast.LENGTH_SHORT).show();
                         }

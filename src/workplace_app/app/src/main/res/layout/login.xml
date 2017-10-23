@@ -52,14 +52,14 @@
                 android:layout_width="150dp"
                 android:layout_height="match_parent"
                 android:onClick="handleLogin"
-                android:text="@string/logIn"/>
+                android:text="@string/login"/>
 
             <Button
                 android:id="@+id/btnSignup"
                 android:layout_width="150dp"
                 android:layout_height="match_parent"
                 android:onClick="handleSignUp"
-                android:text="@string/signUp"/>
+                android:text="@string/sign_up"/>
 
 
         </LinearLayout>
@@ -70,7 +70,7 @@
             android:layout_height="65dp"
             android:gravity="center"
             android:clickable="true"
-            android:text="@string/resetPass"
+            android:text="@string/reset_pass"
             android:textColorHighlight="@color/colorPrimary"
             android:onClick="handleReset"
             android:textStyle="italic"

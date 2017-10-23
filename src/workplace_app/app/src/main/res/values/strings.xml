@@ -2,9 +2,9 @@
     <string name="app_name">workplace_app</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
-    <string name="logIn">Login</string>
-    <string name="signUp">Sign Up</string>
-    <string name="resetPass">Forgot Password?</string>
+    <string name="login">Login</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="reset_pass">Forgot Password?</string>
     <string name="back">Back</string>
     <string name="authentication_failed">Authentication failed</string>
     <string name="failed_verification">Failed to send verification email.</string>
@@ -13,4 +13,5 @@
     <string name="reset_password">Reset Password</string>
     <string name="reset_password_email_sent">Reset password email sent</string>
     <string name="reset_password_email_failed">Reset password email failed</string>
+    <string name="company_name">Company Name</string>
 </resources>

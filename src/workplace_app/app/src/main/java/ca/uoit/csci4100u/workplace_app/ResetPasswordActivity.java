@@ -18,7 +18,6 @@ import com.google.firebase.auth.FirebaseAuth;
 public class ResetPasswordActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private static final String TAG = "ResetPasswordActivity";
 
     /**
      * The onCreate method for the 'ResetPasswordActivity' class. This function initializes the activity
@@ -66,11 +65,9 @@ public class ResetPasswordActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "resetEmail:success");
                             Toast.makeText(ResetPasswordActivity.this, R.string.reset_password_email_sent,
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            Log.d(TAG, "resetEmail:failure");
                             Toast.makeText(ResetPasswordActivity.this, R.string.reset_password_email_failed,
                                     Toast.LENGTH_SHORT).show();
                         }

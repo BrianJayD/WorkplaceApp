@@ -21,7 +21,6 @@ import com.google.firebase.auth.FirebaseAuth;
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private static final String TAG = "LoginActivity";
 
     /**
      * The onCreate method for the 'LoginActivity' class. This function initializes the activity
@@ -36,12 +35,9 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null && mAuth.getCurrentUser().isEmailVerified()) {
-            // TODO: Check if debug statements need to be added into a resource file
-            Log.d(TAG, "onCreate:currentUserIsSet");
             Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
             startActivity(intent);
-        } else {
-            Log.d(TAG, "onCreate:currentUserIsNotSet");
+            finish();
         }
     }
 
@@ -62,11 +58,11 @@ public class LoginActivity extends AppCompatActivity {
 
     /**
      * Handles the onClick function for the 'Sign Up' button. This function creates a sub-activity
-     * 'SignUpActivity' which will allow a user to create an account in the database
+     * 'UserSignUpActivity' which will allow a user to create an account in the database
      * @param view The view that has been clicked (the button)
      */
     public void handleSignUp(View view) {
-        Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
+        Intent intent = new Intent(LoginActivity.this, UserSignUpActivity.class);
         startActivity(intent);
     }
 
@@ -94,11 +90,10 @@ public class LoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (mAuth.getCurrentUser().isEmailVerified()) {
                             if (task.isSuccessful()) {
-                                Log.d(TAG, "signIn:success");
                                 Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
                                 startActivity(intent);
+                                finish();
                             } else {
-                                Log.d(TAG, "signIn:failure", task.getException());
                                 Toast.makeText(LoginActivity.this, R.string.authentication_failed,
                                         Toast.LENGTH_SHORT).show();
                             }
