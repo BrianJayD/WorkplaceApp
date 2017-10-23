@@ -6,4 +6,6 @@
     <string name="signUp">Sign Up</string>
     <string name="resetPass">Forgot Password?</string>
     <string name="back">Back</string>
+    <string name="account_created">Account Created Successfully</string>
+    <string name="authentication_failed">Authentication Failed</string>
 </resources>

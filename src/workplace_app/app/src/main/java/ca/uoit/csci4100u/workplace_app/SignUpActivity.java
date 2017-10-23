@@ -12,7 +12,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 /**
  * The 'SignUpActivity' class which is the activity the user sees when needing to create a new
@@ -24,7 +23,8 @@ public class SignUpActivity extends AppCompatActivity {
     private static final String TAG = "SignUpActivity";
 
     /**
-     * The onCreate method for the 'SignUpActivity' class. This function initializes the activity.
+     * The onCreate method for the 'SignUpActivity' class. This function initializes the activity
+     * and sets the member variables.
      * @param savedInstanceState The saved instance state of the activity
      */
     @Override
@@ -42,10 +42,11 @@ public class SignUpActivity extends AppCompatActivity {
      */
     public void handleSignUp(View view) {
         String email = ((EditText) findViewById(R.id.signUpEmail)).getText().toString();
-        String password = ((EditText) findViewById(R.id.signUpEmail)).getText().toString();
+        String password = ((EditText) findViewById(R.id.signUpPass)).getText().toString();
 
-        createAccount(email, password);
-        finish();
+        if (!email.isEmpty() && !password.isEmpty()) {
+            createAccount(email, password);
+        }
     }
 
     /**
@@ -58,22 +59,25 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     /**
-     * A helper method used to create a new firebase account
+     * A helper method used to create a new Firebase account. This function will create a toast
+     * if the account was created successfully or not
      * @param email A string representation of the user-specified email address
      * @param password A string representation of the user-specified password
      */
     private void createAccount(String email, String password) {
-
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "createUserWithEmail:success");
-                            //FirebaseUser user = mAuth.getCurrentUser();
+                            Log.d(TAG, "createAccount:success");
+                            String successMessage = getResources().getString(R.string.account_created);
+                            Toast.makeText(SignUpActivity.this, successMessage, Toast.LENGTH_SHORT).show();
                         } else {
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpActivity.this, "ERROR", Toast.LENGTH_LONG);
+                            Log.w(TAG, "createAccount:failure", task.getException());
+                            // TODO: Check if we need to do our own error messages since it's not in a resource file
+                            String errorMessage = task.getException().getMessage();
+                            Toast.makeText(SignUpActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

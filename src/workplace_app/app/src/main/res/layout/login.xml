@@ -17,7 +17,7 @@
             android:textSize="20dp"/>
 
         <EditText
-            android:id="@+id/emailRequest"
+            android:id="@+id/loginEmail"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="@string/email"
@@ -34,7 +34,7 @@
             android:textSize="20dp"/>
 
         <EditText
-            android:id="@+id/passRequest"
+            android:id="@+id/loginPass"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="@string/password"
