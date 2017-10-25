@@ -40,11 +40,13 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     /**
-     * TODO: Fill this in after the code is written
+     * Handles the onClick function for the 'Chat Rooms' button. This function will start the
+     * sub-activity 'ChatActivity'
      * @param view The view that has been clicked (the button)
      */
     public void handleChat(View view) {
-
+        Intent intent =  new Intent(LandingPageActivity.this, ChatActivity.class);
+        startActivity(intent);
     }
 
     /**

@@ -20,7 +20,8 @@
         <activity android:name=".LandingPageActivity" />
         <activity android:name=".SupportActivity" />
         <activity android:name=".CompanySignUpActivity" />
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".SettingsActivity" />
+        <activity android:name=".ChatActivity"></activity>
     </application>
 
 </manifest>
