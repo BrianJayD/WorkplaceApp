@@ -34,11 +34,12 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
-            if (mAuth.getCurrentUser().isEmailVerified()) {
+            // TODO: Uncomment this after testing is done
+//            if (mAuth.getCurrentUser().isEmailVerified()) {
                 Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
                 startActivity(intent);
                 finish();
-            }
+//            }
         }
     }
 
@@ -49,8 +50,8 @@ public class LoginActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleLogin(View view) {
-        String email = ((EditText) findViewById(R.id.loginEmail)).getText().toString();
-        String password = ((EditText) findViewById(R.id.loginPass)).getText().toString();
+        final String email = ((EditText) findViewById(R.id.loginEmail)).getText().toString();
+        final String password = ((EditText) findViewById(R.id.loginPass)).getText().toString();
 
         if (!email.isEmpty() && !password.isEmpty()) {
             signIn(email, password);
@@ -84,20 +85,21 @@ public class LoginActivity extends AppCompatActivity {
      * @param email A string representation of the user-specified email address
      * @param password A string representation of the user-specified password
      */
-    private void signIn(String email, String password) {
+    private void signIn(final String email, final String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            if (mAuth.getCurrentUser().isEmailVerified()) {
+                            // TODO: Uncomment this code after testing
+//                            if (mAuth.getCurrentUser().isEmailVerified()) {
                                 Intent intent = new Intent(LoginActivity.this, LandingPageActivity.class);
                                 startActivity(intent);
                                 finish();
-                            } else {
-                                Toast.makeText(LoginActivity.this, R.string.verify_email,
-                                        Toast.LENGTH_SHORT).show();
-                            }
+//                            } else {
+//                                Toast.makeText(LoginActivity.this, R.string.verify_email,
+//                                        Toast.LENGTH_SHORT).show();
+//                            }
                         } else {
                             Toast.makeText(LoginActivity.this, R.string.authentication_failed,
                                     Toast.LENGTH_SHORT).show();

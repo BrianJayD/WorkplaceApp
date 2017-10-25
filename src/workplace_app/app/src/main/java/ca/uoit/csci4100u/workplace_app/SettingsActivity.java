@@ -41,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleUpdateNewDisplayName(View view) {
-        String displayName = ((EditText) findViewById(R.id.updateDisplayName)).getText().toString();
+        final String displayName = ((EditText) findViewById(R.id.updateDisplayName)).getText().toString();
 
         if (!displayName.isEmpty()) {
             UserProfileChangeRequest userProfileChangeRequest = new UserProfileChangeRequest.Builder()
@@ -70,7 +70,7 @@ public class SettingsActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleUpdateNewPassword(View view) {
-        String password = ((EditText) findViewById(R.id.updatePass)).getText().toString();
+        final String password = ((EditText) findViewById(R.id.updatePass)).getText().toString();
 
         if (!password.isEmpty()) {
             mAuth.getCurrentUser().updatePassword(password)
@@ -96,7 +96,7 @@ public class SettingsActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleUpdateNewEmail(View view) {
-        String email = ((EditText) findViewById(R.id.updateEmail)).getText().toString();
+        final String email = ((EditText) findViewById(R.id.updateEmail)).getText().toString();
 
         if (!email.isEmpty()) {
             mAuth.getCurrentUser().updateEmail(email)

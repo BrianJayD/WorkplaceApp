@@ -37,7 +37,7 @@ public class SupportActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleReset(View view) {
-        String email = ((EditText) findViewById(R.id.supportEmail)).getText().toString();
+        final String email = ((EditText) findViewById(R.id.supportEmail)).getText().toString();
 
         if (!email.isEmpty()) {
             resetEmail(email);
@@ -58,7 +58,7 @@ public class SupportActivity extends AppCompatActivity {
      * will create a toast if the reset email was sent successfully or not.
      * @param email A string representation of the user-specified email address
      */
-    private void resetEmail(String email) {
+    private void resetEmail(final String email) {
         mAuth.sendPasswordResetEmail(email)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
