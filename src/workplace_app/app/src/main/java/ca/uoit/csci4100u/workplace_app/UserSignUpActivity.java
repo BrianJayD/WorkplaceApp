@@ -14,6 +14,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * The 'UserSignUpActivity' class which is the activity the user sees when needing to create a new
@@ -22,6 +24,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 public class UserSignUpActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
     private static final String TAG = "UserSignUpActivity:d";
 
     /**
@@ -35,6 +38,7 @@ public class UserSignUpActivity extends AppCompatActivity {
         setContentView(R.layout.user_sign_up);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     /**
@@ -76,6 +80,7 @@ public class UserSignUpActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             setDisplayName(displayName);
                             sendEmailVerification();
+                            DbHelper.createUserDbEntry(mAuth, mDatabase, displayName);
                         } else {
                             // TODO: Check if we need to do our own error messages since it's not in a resource file
                             String errorMessage = task.getException().getMessage();

@@ -17,14 +17,6 @@ public class CompanySignUpActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
-    private static final String COMPANIES = "companies";
-    private static final String COMPANY_NAME = "company_name";
-    private static final String CHATS = "chats";
-    private static final String MEMBERS = "members";
-    private static final String CHAT_TITLE = "chat_title";
-    private static final String USERS = "users";
-    private static final String ADMIN = "admin";
-    private static final String DISPLAY_NAME = "display_name";
 
     /**
      * The onCreate method for the 'CompanySignUpActivity' class. This function initializes the activity
@@ -42,23 +34,13 @@ public class CompanySignUpActivity extends AppCompatActivity {
 
     /**
      * Handles the onClick function for the 'Sign Up' button. This function creates a database
-     * entry for the company as well as the user that created the company
+     * entry for the company as well as a company entry for the user
      * @param view The view that has been clicked (the button)
      */
     public void handleCompanySignUp(View view) {
         final String companyName = ((EditText) findViewById(R.id.companyName)).getText().toString();
         if (!companyName.isEmpty()) {
-            String userId = mAuth.getCurrentUser().getUid();
-            String displayName = mAuth.getCurrentUser().getDisplayName();
-
-            String companyId = mDatabase.child(COMPANY_NAME).push().getKey();
-            String chatId = mDatabase.child(COMPANY_NAME).child(companyId).child(CHATS).push().getKey();
-            mDatabase.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyName);
-            mDatabase.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(CHAT_TITLE).setValue(companyName);
-            mDatabase.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
-
-            mDatabase.child(USERS).child(userId).child(DISPLAY_NAME).setValue(displayName);
-            mDatabase.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(true);
+            DbHelper.createCompanyDbEntry(mAuth, mDatabase, companyName);
 
             Toast.makeText(CompanySignUpActivity.this, R.string.company_created_successfully,
                     Toast.LENGTH_SHORT).show();

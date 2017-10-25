@@ -12,6 +12,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 /**
  * The 'SettingsActivity' class which is the activity the user will use to update their user
@@ -20,6 +22,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 public class SettingsActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
 
     /**
      * The onCreate method for the 'SettingsActivity' class. This function initializes the activity
@@ -32,6 +35,7 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.settings);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
     }
 
     /**
@@ -54,6 +58,7 @@ public class SettingsActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 Toast.makeText(SettingsActivity.this, R.string.display_name_update_success,
                                         Toast.LENGTH_SHORT).show();
+                                DbHelper.updateDbDisplayName(mAuth, mDatabase, displayName);
                             } else {
                                 Toast.makeText(SettingsActivity.this, R.string.display_name_update_fail,
                                         Toast.LENGTH_SHORT).show();
