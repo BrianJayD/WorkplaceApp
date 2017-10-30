@@ -14,14 +14,23 @@ import java.util.List;
  */
 public class DbHelper {
 
+    // TODO: Convert the below to an enum
     protected static final String COMPANIES = "companies";
     protected static final String COMPANY_NAME = "company_name";
     protected static final String CHATS = "chats";
     protected static final String MEMBERS = "members";
     protected static final String USERS = "users";
     protected static final String ADMIN = "admin";
+    protected static final String MEMBER = "member";
     protected static final String DISPLAY_NAME = "display_name";
     protected static final String MESSAGES = "messages";
+    protected static final String PERMISSIONS = "permissions";
+    protected static final String EMAIL = "email";
+    protected static final String COMPANY_ID = "company_id";
+    protected static final String CHAT_ID = "chat_id";
+
+    // Constants
+    private static final String EMPTY_STRING = "";
 
     /**
      * Private constructor so this helper class can't be instantiated
@@ -38,7 +47,9 @@ public class DbHelper {
      */
     public static void createUserDbEntry(FirebaseAuth auth, DatabaseReference database, final String displayName) {
         String userId = auth.getCurrentUser().getUid();
+        String email = auth.getCurrentUser().getEmail();
         database.child(USERS).child(userId).child(DISPLAY_NAME).setValue(displayName);
+        database.child(USERS).child(userId).child(EMAIL).setValue(email);
     }
 
     /**
@@ -53,7 +64,19 @@ public class DbHelper {
     }
 
     /**
-     * A helper function to create a new company in the database
+     * A helper function to update the email in the database
+     * @param auth The firebase authentication
+     * @param database The firebase database reference
+     * @param email A string representation of the user's email
+     */
+    public static void updateDbEmail(FirebaseAuth auth, DatabaseReference database, final String email) {
+        String userId = auth.getCurrentUser().getUid();
+        database.child(USERS).child(userId).child(EMAIL).setValue(email);
+    }
+
+    /**
+     * A helper function to create a new company in the database as well as putting an entry for the
+     * company id under the user. This will also set the user that created the company as the 'admin'
      * @param auth The firebase authentication
      * @param database The firebase database reference
      * @param companyName A string representation of the company name
@@ -63,10 +86,10 @@ public class DbHelper {
 
         String companyId = database.child(COMPANY_NAME).push().getKey();
         database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyName);
-        database.child(COMPANIES).child(companyId).child(CHATS).child(companyName).setValue(true);
+        database.child(COMPANIES).child(companyId).child(CHATS).child(companyName).child(PERMISSIONS).setValue(false);
         database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
 
-        database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(true);
+        database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(companyName);
     }
 
     /**
@@ -114,5 +137,84 @@ public class DbHelper {
         Message newMessage = new Message(userId, currentTime, message);
 
         database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).push().setValue(newMessage);
+    }
+
+    /**
+     * A helper function to get all of the companies associated with the current user
+     * @param auth The firebase authentication
+     * @param dataSnapshot A snapshot of the database
+     * @return A list of Company objects that the user is a member of
+     */
+    public static List<Company> getCompanyListForCurrUser(FirebaseAuth auth, DataSnapshot dataSnapshot) {
+        String userId = auth.getCurrentUser().getUid();
+        Iterable<DataSnapshot> companies = dataSnapshot.child(USERS).child(userId).child(COMPANIES).getChildren();
+
+        List<Company> companyList = new ArrayList<>();
+        for (DataSnapshot company : companies) {
+            Company newCompany = new Company(company.getKey().toString(), company.getValue().toString());
+            companyList.add(newCompany);
+        }
+        return companyList;
+    }
+
+    /**
+     * A helper function which will check to see if the email specified is inside of the database. If
+     * it is then return it, otherwise return an empty string
+     * TODO: Potentially move to async task since this operation could be quite slow
+     * @param dataSnapshot A snapshot of the database
+     * @param email A string representation of the specified email to be searched for
+     * @return The string representation of the user id associated with the email or an empty string
+     */
+    public static String checkEmailExistsAndGetUid(DataSnapshot dataSnapshot, String email) {
+        Iterable<DataSnapshot> users = dataSnapshot.child(USERS).getChildren();
+        for (DataSnapshot user : users) {
+            String userId = user.getKey();
+            String dbEmail = dataSnapshot.child(USERS).child(userId).child(EMAIL).getValue().toString();
+            if (email.compareTo(dbEmail) == 0) {
+                return userId;
+            }
+        }
+        return EMPTY_STRING;
+    }
+
+    /**
+     * A helper function to add the specified user to the specified company in the database as well
+     * as putting an entry for the company id under the user
+     * @param database The firebase database reference
+     * @param dataSnapshot A snapshot of the database
+     * @param companyId A string representation of the specified company id
+     * @param userId A string representation of the specified user id
+     */
+    public static void addMemberToCompanyDb(DatabaseReference database, DataSnapshot dataSnapshot, String companyId, String userId) {
+        database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(MEMBER);
+        database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(convertCompanyIdToCompanyName(dataSnapshot, companyId));
+    }
+
+    /**
+     * A helper function to get the list of chats for the specified company
+     * @param dataSnapshot A snapshot of the database
+     * @param companyId A string representation of the specified company id
+     * @return A list of Chat objects that the company has
+     */
+    public static List<Chat> getChatListForSpecifiedCompany(DataSnapshot dataSnapshot, String companyId) {
+        Iterable<DataSnapshot> chats = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).getChildren();
+
+        List<Chat> chatList = new ArrayList<>();
+        for (DataSnapshot chat : chats) {
+            boolean permission = (Boolean) dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chat.getKey().toString()).child(PERMISSIONS).getValue();
+            Chat newChat = new Chat(chat.getKey().toString(), permission);
+            chatList.add(newChat);
+        }
+        return chatList;
+    }
+
+    /**
+     * A helper function to convert the company id to the company name
+     * @param dataSnapshot A snapshot of the database
+     * @param companyId A string representation of the specified company id
+     * @return A string representation of the company name
+     */
+    private static String convertCompanyIdToCompanyName(DataSnapshot dataSnapshot, String companyId) {
+        return dataSnapshot.child(COMPANIES).child(companyId).child(COMPANY_NAME).getValue().toString();
     }
 }

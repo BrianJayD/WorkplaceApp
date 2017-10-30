@@ -12,7 +12,7 @@ public class Message {
     private String message;
 
     /**
-     * Empty default constructor
+     * Empty default constructor for the Firebase API to use
      */
     public Message(){}
 

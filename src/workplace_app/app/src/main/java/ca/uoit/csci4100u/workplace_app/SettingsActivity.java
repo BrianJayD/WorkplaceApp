@@ -41,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
     /**
      * Handles the onClick function for the 'Update Display Name' button. This will take the values in the
      * EditText field associated with the new display name and update the display name associated with
-     * the user.
+     * the user. This will also update the database value associated with the user's display name
      * @param view The view that has been clicked (the button)
      */
     public void handleUpdateNewDisplayName(View view) {
@@ -97,7 +97,8 @@ public class SettingsActivity extends AppCompatActivity {
     /**
      * Handles the onClick function for the 'Update Email' button. This will take the values in the
      * EditText field associated with the new email and update the email address associated with
-     * the user. Afterwards, the new email address will be sent a verification email.
+     * the user. Afterwards, the new email address will be sent a verification email. This will also
+     * update the database value associated with the user's email
      * @param view The view that has been clicked (the button)
      */
     public void handleUpdateNewEmail(View view) {
@@ -111,6 +112,7 @@ public class SettingsActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 Toast.makeText(SettingsActivity.this, R.string.email_update_success,
                                         Toast.LENGTH_SHORT).show();
+                                DbHelper.updateDbEmail(mAuth, mDatabase, email);
                                 sendEmailVerification();
                             } else {
                                 Toast.makeText(SettingsActivity.this, R.string.email_update_fail,

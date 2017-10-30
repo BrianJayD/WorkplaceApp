@@ -1,5 +1,6 @@
 package ca.uoit.csci4100u.workplace_app;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,8 @@ public class ChatActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private DataSnapshot mDataSnapShot;
+    private String mCurrCompany;
+    private String mCurrChat;
     private static final String TAG = "ChatActivity:d";
 
     /**
@@ -40,27 +43,16 @@ public class ChatActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
 
+        Intent landingPageIntent = getIntent();
+        mCurrCompany = landingPageIntent.getStringExtra(DbHelper.COMPANY_ID);
+        mCurrChat = landingPageIntent.getStringExtra(DbHelper.CHAT_ID);
+
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
                 mDataSnapShot = dataSnapshot;
-                // TODO: The companyId and chatId should be taken from an intent at this stage. The below code should be deleted after this is done
-                Iterable<DataSnapshot> companies = mDataSnapShot.child(DbHelper.COMPANIES).getChildren();
-                String companyId = "";
-                for (DataSnapshot company : companies) {
-                    companyId = company.getKey();
-                    break;
-                }
-                Iterable<DataSnapshot> chats = mDataSnapShot.child(DbHelper.COMPANIES).child(companyId).child(DbHelper.CHATS).getChildren();
-                String chatId = "";
-                for (DataSnapshot chat : chats) {
-                    chatId = chat.getKey();
-                    break;
-                }
-                // TODO: -----------------------------------------------------------
 
-                List<Message> messageList = DbHelper.getDbMessages(mDataSnapShot, companyId, chatId);
+                List<Message> messageList = DbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat);
                 ((TextView) findViewById(R.id.chatMessages)).setText("");
                 for (Message message : messageList) {
                     ((TextView) findViewById(R.id.chatMessages)).append(message.toString(mDataSnapShot) + "\n");
@@ -81,23 +73,9 @@ public class ChatActivity extends AppCompatActivity {
      */
     public void handlePostMessage(View view) {
         final String message = ((EditText) findViewById(R.id.userMessage)).getText().toString();
-        // TODO: The companyId and chatId should be taken from an intent at this stage. The below code should be deleted after this is done
-        Iterable<DataSnapshot> companies = mDataSnapShot.child(DbHelper.COMPANIES).getChildren();
-        String companyId = "";
-        for (DataSnapshot company : companies) {
-            companyId = company.getKey();
-            break;
-        }
-        Iterable<DataSnapshot> chats = mDataSnapShot.child(DbHelper.COMPANIES).child(companyId).child(DbHelper.CHATS).getChildren();
-        String chatId = "";
-        for (DataSnapshot chat : chats) {
-            chatId = chat.getKey();
-            break;
-        }
-        // TODO: -----------------------------------------------------------
 
         if (!message.isEmpty()) {
-            DbHelper.postUserMessage(mDatabase, mAuth, companyId, chatId, message);
+            DbHelper.postUserMessage(mDatabase, mAuth, mCurrCompany, mCurrChat, message);
         }
     }
 
