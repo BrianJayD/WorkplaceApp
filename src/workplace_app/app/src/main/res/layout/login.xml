@@ -7,57 +7,55 @@
         android:orientation="vertical"
         android:gravity="center">
 
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="@string/email"
-            android:gravity="center"
-            android:textAllCaps="true"
-            android:textStyle="bold"
-            android:textSize="20dp"/>
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@mipmap/app_logo"/>
+        </RelativeLayout>
+
 
         <EditText
             android:id="@+id/loginEmail"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:gravity="center"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="@string/password"
             android:gravity="center"
-            android:textAllCaps="true"
-            android:textStyle="bold"
-            android:textSize="20dp"/>
+            android:layout_weight="1"/>
 
         <EditText
             android:id="@+id/loginPass"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
             android:hint="@string/password"
             android:gravity="center"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:layout_weight="1"/>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:layout_weight="1">
 
             <Button
                 android:id="@+id/btnLogin"
                 android:layout_width="150dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:onClick="handleLogin"
                 android:text="@string/login"/>
 
             <Button
                 android:id="@+id/btnSignup"
                 android:layout_width="150dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:onClick="handleSignUp"
                 android:text="@string/sign_up"/>
 
@@ -67,14 +65,15 @@
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:clickable="true"
             android:text="@string/reset_pass"
             android:textColorHighlight="@color/colorPrimary"
             android:onClick="handleReset"
             android:textStyle="italic"
-            android:contextClickable="true"/>
+            android:contextClickable="true"
+            android:layout_weight="1"/>
         
     </LinearLayout>
 
