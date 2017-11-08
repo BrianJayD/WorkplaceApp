@@ -5,7 +5,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,18 +20,20 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Message;
+import ca.uoit.csci4100u.workplace_app.inc.MessageAdapter;
 import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
 
 /**
  * The 'ChatActivity' class which is the activity the user will use to post and see messages
  */
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
     private DataSnapshot mDataSnapShot;
     private String mCurrCompany;
     private String mCurrChat;
+    private MessageAdapter messageAdapter;
     private static final String TAG = "ChatActivity:d";
 
     /**
@@ -56,10 +60,10 @@ public class ChatActivity extends AppCompatActivity {
                 mDataSnapShot = dataSnapshot;
 
                 List<Message> messageList = DbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat);
-                ((TextView) findViewById(R.id.chatMessages)).setText("");
-                for (Message message : messageList) {
-                    ((TextView) findViewById(R.id.chatMessages)).append(message.toString(mDataSnapShot) + "\n");
-                }
+                messageAdapter = new MessageAdapter(ChatActivity.this, messageList);
+                ListView feed = findViewById(R.id.messageFeed);
+                feed.setAdapter(messageAdapter);
+                feed.setOnItemClickListener(ChatActivity.this);
             }
 
             @Override
@@ -68,6 +72,14 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onItemClick(AdapterView aView, View source,
+                            int position, long id) {
+
+        // Do nothing right now
+    }
+
 
     /**
      * The onClick function for the "Post" button. This function will take the information the user
@@ -78,7 +90,7 @@ public class ChatActivity extends AppCompatActivity {
         final String message = ((EditText) findViewById(R.id.userMessage)).getText().toString();
 
         if (!message.isEmpty()) {
-            DbHelper.postUserMessage(mDatabase, mAuth, mCurrCompany, mCurrChat, message);
+            DbHelper.postUserMessage(mDatabase, mDataSnapShot, mAuth, mCurrCompany, mCurrChat, message);
         }
     }
 

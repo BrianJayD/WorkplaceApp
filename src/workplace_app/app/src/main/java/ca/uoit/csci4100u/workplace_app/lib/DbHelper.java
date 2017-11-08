@@ -135,10 +135,12 @@ public class DbHelper {
      * @param chatId The chat id associated with the message being posted
      * @param message The message that contains the information being posted
      */
-    public static void postUserMessage(DatabaseReference database, FirebaseAuth auth, String companyId, String chatId, String message) {
+    public static void postUserMessage(DatabaseReference database, DataSnapshot dataSnapshot, FirebaseAuth auth, String companyId, String chatId, String message) {
         String userId = auth.getCurrentUser().getUid();
+        String userName = convertUidToDispName(dataSnapshot, userId);
+
         String currentTime = DateFormat.getDateTimeInstance().format(new Date());
-        Message newMessage = new Message(userId, currentTime, message);
+        Message newMessage = new Message(userId, userName, currentTime, message);
 
         database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).push().setValue(newMessage);
     }

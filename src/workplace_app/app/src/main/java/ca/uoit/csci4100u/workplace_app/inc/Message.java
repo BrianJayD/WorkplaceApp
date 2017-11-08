@@ -11,6 +11,7 @@ public class Message {
 
     private String timeStamp;
     private String userId;
+    private String userName;
     private String message;
 
     /**
@@ -21,13 +22,31 @@ public class Message {
     /**
      * Constructor to easily create a message
      * @param userId The id associated with the user
+     * @param userName The userName associated with the user
      * @param timeStamp The time the message was sent
      * @param message The message information
      */
-    public Message(String userId, String timeStamp, String message) {
+    public Message(String userId, String userName, String timeStamp, String message) {
         setUserId(userId);
+        setUserName(userName);
         setTimeStamp(timeStamp);
         setMessage(message);
+    }
+
+    /**
+     * Setter for the user name of the poster of the message
+     * @param userName
+     */
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    /**
+     * Getter for the user name of the poster of the message
+     * @return
+     */
+    public String getUserName() {
+        return this.userName;
     }
 
     /**
@@ -76,15 +95,5 @@ public class Message {
      */
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    /**
-     * The toString function to easily print the full message information
-     * @param dataSnapshot The snapshot of the database for converting the userId to display name
-     * @return A string containing all of the message information
-     */
-    public String toString(DataSnapshot dataSnapshot) {
-        String displayName = DbHelper.convertUidToDispName(dataSnapshot, getUserId());
-        return getTimeStamp() + ": " + displayName + " - " + getMessage();
     }
 }
