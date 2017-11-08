@@ -1,4 +1,4 @@
-package ca.uoit.csci4100u.workplace_app;
+package ca.uoit.csci4100u.workplace_app.inc;
 
 /**
  * A simple chat class to store chat related data

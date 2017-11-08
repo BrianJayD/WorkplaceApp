@@ -17,6 +17,8 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
+
 /**
  * The 'UserSignUpActivity' class which is the activity the user sees when needing to create a new
  * account. This handles creating a new account and moving back to the 'LoginActivity'

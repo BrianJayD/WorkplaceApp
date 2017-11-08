@@ -13,10 +13,12 @@ This is a repository to hold the code for CSCI 4100U's final project.
 
 | Section | Name | Status
 |---|---|---|
-| Sign In | Akira | Needs styling
-| Acc. Sign Up | Akira | Needs styling
-| Comp. Sign Up | Akira | Needs styling
-| Single Chat | N/A | Not started
-| Support | Akira | Needs styling
-| Settings | Akira | Needs styling
-| Landing Page | Akira | Needs styling
+| Sign In | Akira | In place functionally. Needs styling.
+| Acc. Sign Up | Akira | In place functionally. Needs styling.
+| Comp. Sign Up | Akira | In place functionally. Needs styling.
+| Chat | Akira | In place functionally (bare bones). Needs styling and work.
+| Support | Akira | In place functionally. Needs styling.
+| Settings | Akira | In place functionally. Needs styling. Possibly move Comp. Sign Up into here.
+| Landing Page | Akira | Needs alot of styling.
+| Google Maps | N/A | Not started
+| Google Calendar | N/A | Not started

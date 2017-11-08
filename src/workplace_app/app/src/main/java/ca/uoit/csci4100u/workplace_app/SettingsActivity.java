@@ -15,6 +15,8 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
+
 /**
  * The 'SettingsActivity' class which is the activity the user will use to update their user
  * information

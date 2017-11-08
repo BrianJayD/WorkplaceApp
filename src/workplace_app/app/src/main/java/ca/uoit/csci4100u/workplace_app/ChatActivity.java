@@ -17,6 +17,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
+import ca.uoit.csci4100u.workplace_app.inc.Message;
+import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
+
 /**
  * The 'ChatActivity' class which is the activity the user will use to post and see messages
  */

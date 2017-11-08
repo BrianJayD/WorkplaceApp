@@ -20,6 +20,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
+import ca.uoit.csci4100u.workplace_app.inc.Chat;
+import ca.uoit.csci4100u.workplace_app.inc.Company;
+import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
+
 /**
  * The 'LandingPageActivity' class which is the main landing page that the user will see after
  * logging in. It will allow the user to access a number of application features specific to the

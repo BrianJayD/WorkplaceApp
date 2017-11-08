@@ -1,4 +1,4 @@
-package ca.uoit.csci4100u.workplace_app;
+package ca.uoit.csci4100u.workplace_app.lib;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -9,25 +9,29 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ca.uoit.csci4100u.workplace_app.inc.Message;
+import ca.uoit.csci4100u.workplace_app.inc.Chat;
+import ca.uoit.csci4100u.workplace_app.inc.Company;
+
 /**
  * A helper class meant to do database functionality
  */
 public class DbHelper {
 
-    // TODO: Convert the below to an enum
-    protected static final String COMPANIES = "companies";
-    protected static final String COMPANY_NAME = "company_name";
-    protected static final String CHATS = "chats";
-    protected static final String MEMBERS = "members";
-    protected static final String USERS = "users";
-    protected static final String ADMIN = "admin";
-    protected static final String MEMBER = "member";
-    protected static final String DISPLAY_NAME = "display_name";
-    protected static final String MESSAGES = "messages";
-    protected static final String PERMISSIONS = "permissions";
-    protected static final String EMAIL = "email";
-    protected static final String COMPANY_ID = "company_id";
-    protected static final String CHAT_ID = "chat_id";
+    // Nodes in the database
+    private static final String COMPANIES = "companies";
+    private static final String COMPANY_NAME = "company_name";
+    private static final String CHATS = "chats";
+    private static final String MEMBERS = "members";
+    private static final String USERS = "users";
+    private static final String ADMIN = "admin";
+    private static final String MEMBER = "member";
+    private static final String DISPLAY_NAME = "display_name";
+    private static final String MESSAGES = "messages";
+    private static final String PERMISSIONS = "permissions";
+    private static final String EMAIL = "email";
+    public static final String COMPANY_ID = "company_id";
+    public static final String CHAT_ID = "chat_id";
 
     // Constants
     private static final String EMPTY_STRING = "";

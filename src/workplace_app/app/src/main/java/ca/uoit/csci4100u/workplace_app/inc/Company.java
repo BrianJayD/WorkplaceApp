@@ -1,4 +1,4 @@
-package ca.uoit.csci4100u.workplace_app;
+package ca.uoit.csci4100u.workplace_app.inc;
 
 /**
  * A simple company class to store chat related data
@@ -10,8 +10,8 @@ public class Company {
 
     /**
      * Constructor to easily create a company
-     * @param companyId
-     * @param companyName
+     * @param companyId The company id
+     * @param companyName The company name
      */
     public Company(String companyId, String companyName) {
         setCompanyId(companyId);

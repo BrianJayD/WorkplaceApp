@@ -1,6 +1,8 @@
-package ca.uoit.csci4100u.workplace_app;
+package ca.uoit.csci4100u.workplace_app.inc;
 
 import com.google.firebase.database.DataSnapshot;
+
+import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
 
 /**
  * A simple message class to store message related data
