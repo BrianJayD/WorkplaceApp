@@ -2,7 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_margin="10dp"
+    android:id="@+id/messageItem"
     android:background="@drawable/message_box"
     android:layout_height="wrap_content">
 
@@ -12,9 +12,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="15dp"
-        android:text="Akira"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="5dp"
+        android:text=""
         android:textStyle="bold" />
 
     <TextView
@@ -26,7 +26,7 @@
         android:layout_marginEnd="25dp"
         android:layout_toEndOf="@+id/lblUserName"
         android:paddingLeft="5dp"
-        android:text="Oct 30, 2017: 5:14PM"
+        android:text=""
         android:textAlignment="textStart"
         android:textSize="12sp" />
 
@@ -35,10 +35,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/lblUserName"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="25dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="15dp"
         android:layout_alignStart="@+id/lblUserName"
-        android:layout_marginBottom="15dp"
-        android:text="Hello, this is a test.Hello, this is a test.Hello, this is a test.Hello, this is a test.Hello, this is a test.Hello, this is a test." />
+        android:layout_marginBottom="5dp"
+        android:text="" />
 
 </RelativeLayout>

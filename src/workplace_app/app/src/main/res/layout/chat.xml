@@ -16,14 +16,20 @@
 
         <ListView
             android:id="@+id/messageFeed"
+            android:dividerHeight="5dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            />
+            android:layout_height="0dp"
+            android:divider="@color/list_view_divider"
+            android:scrollbars="none"
+            android:layout_weight=".9" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="65dp"
             android:orientation="horizontal"
+            android:layout_weight=".1"
             android:gravity="center">
 
             <EditText
@@ -42,21 +48,6 @@
                 android:onClick="handlePostMessage"
                 android:layout_weight=".1"
                 android:text="@string/send_message" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/btnBack"
-                android:layout_width="150dp"
-                android:layout_height="match_parent"
-                android:onClick="handleBack"
-                android:text="@string/back"/>
-
         </LinearLayout>
 
     </LinearLayout>
