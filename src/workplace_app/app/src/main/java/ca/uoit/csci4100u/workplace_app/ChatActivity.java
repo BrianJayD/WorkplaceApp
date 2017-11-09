@@ -17,6 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Message;
@@ -33,7 +34,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private DataSnapshot mDataSnapShot;
     private String mCurrCompany;
     private String mCurrChat;
-    private MessageAdapter messageAdapter;
+    private List<Message> messageList;
     private static final String TAG = "ChatActivity:d";
 
     /**
@@ -49,21 +50,28 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        messageList = new ArrayList<>();
 
         Intent landingPageIntent = getIntent();
         mCurrCompany = landingPageIntent.getStringExtra(DbHelper.COMPANY_ID);
         mCurrChat = landingPageIntent.getStringExtra(DbHelper.CHAT_ID);
 
+        final ListView feed = findViewById(R.id.messageFeed);
+        final MessageAdapter messageAdapter = new MessageAdapter(ChatActivity.this, messageList);
+        feed.setAdapter(messageAdapter);
+        feed.setOnItemClickListener(ChatActivity.this);
+
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
-
-                List<Message> messageList = DbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat);
-                messageAdapter = new MessageAdapter(ChatActivity.this, messageList);
-                ListView feed = findViewById(R.id.messageFeed);
-                feed.setAdapter(messageAdapter);
-                feed.setOnItemClickListener(ChatActivity.this);
+                messageList = DbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat);
+                messageAdapter.clear();
+                for (Message message : messageList) {
+                    messageAdapter.add(message);
+                }
+                messageAdapter.notifyDataSetChanged();
+                feed.setSelection(messageAdapter.getCount() - 1);
             }
 
             @Override
@@ -92,6 +100,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         if (!message.isEmpty()) {
             DbHelper.postUserMessage(mDatabase, mDataSnapShot, mAuth, mCurrCompany, mCurrChat, message);
         }
+        ((EditText) findViewById(R.id.userMessage)).setText("");
     }
 
     /**
