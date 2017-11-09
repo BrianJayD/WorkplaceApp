@@ -1,8 +1,7 @@
 package ca.uoit.csci4100u.workplace_app.inc;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
+
 import ca.uoit.csci4100u.workplace_app.R;
 
 /**
@@ -42,7 +42,7 @@ public class MessageAdapter extends ArrayAdapter<Message> {
     }
 
     /**
-     * A function to display a custom layout for each message list item
+     * A function to display a custom layout for each message list item depending on the user
      * @param position The position of the list item in the list
      * @param convertView The view the current list is displaying
      * @param parent The parent view (the list view)
