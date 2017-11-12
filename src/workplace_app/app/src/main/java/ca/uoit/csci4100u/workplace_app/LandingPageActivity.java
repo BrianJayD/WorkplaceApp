@@ -3,7 +3,11 @@ package ca.uoit.csci4100u.workplace_app;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -37,6 +41,7 @@ public class LandingPageActivity extends AppCompatActivity {
     private String mCurrCompany;
     private String mCurrChat;
     private static final String TAG = "LandingPageActivity:d";
+    private Toolbar toolbar;
 
     /**
      * The onCreate method for the 'LandingPageActivity' class. This function initializes the activity
@@ -48,6 +53,9 @@ public class LandingPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing_page);
+
+        toolbar = (Toolbar) findViewById(R.id.landing_toolbar);
+        setSupportActionBar(toolbar);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
@@ -97,6 +105,26 @@ public class LandingPageActivity extends AppCompatActivity {
                 Log.d(TAG, "onCancelled:failed");
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.settings_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_settings:
+                Intent intent = new Intent(LandingPageActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**

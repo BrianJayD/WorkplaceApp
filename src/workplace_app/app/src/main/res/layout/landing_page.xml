@@ -7,12 +7,20 @@
     tools:context="ca.uoit.csci4100u.workplace_app.LandingPageActivity">
 
     <LinearLayout
-        android:layout_width="368dp"
-        android:layout_height="495dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center"
-        tools:layout_editor_absoluteY="8dp"
-        tools:layout_editor_absoluteX="8dp">
+        android:gravity="center">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/landing_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#888888"
+            android:gravity="center"
+            android:theme="@style/Base.ThemeOverlay.AppCompat.ActionBar">
+
+        </android.support.v7.widget.Toolbar>
 
         <LinearLayout
             android:layout_width="match_parent"
