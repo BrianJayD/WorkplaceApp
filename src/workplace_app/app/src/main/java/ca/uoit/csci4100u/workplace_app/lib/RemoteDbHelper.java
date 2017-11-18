@@ -165,14 +165,14 @@ public class RemoteDbHelper {
             Company newCompany = new Company(company.getKey().toString(), company.getValue().toString());
             companyList.add(newCompany);
         }
-        saveCompanyListToLocalDatabase(localDbHelper, companyList, userId);
+        saveCompanyListToLocalDatabase(localDbHelper, companyList);
         return companyList;
     }
 
-    private static void saveCompanyListToLocalDatabase(LocalDbHelper localDbHelper, List<Company> companyList, String userId) {
+    private static void saveCompanyListToLocalDatabase(LocalDbHelper localDbHelper, List<Company> companyList) {
         for (Company company : companyList) {
             if (!localDbHelper.checkCompanyExists(company.getCompanyId())) {
-                localDbHelper.createCompany(company.getCompanyId(), userId, company.getCompanyName());
+                localDbHelper.createCompany(company.getCompanyId(), company.getCompanyName());
             }
         }
     }

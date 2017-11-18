@@ -9,14 +9,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class LocalDbHelper extends SQLiteOpenHelper {
 
     static final int DATABASE_VERSION = 1;
-    static final String TABLE_MESSAGES = "Messages";
+    static final String TABLE_USERS = "Users";
     static final String TABLE_COMPANIES = "Companies";
-    static final String TABLE_CHATS = "Chats";
     static final String DATABASE_NAME = "Workplace";
 
     static final String CREATE_USERS_TABLE = "CREATE TABLE Users (\n" +
             "   userId VARCHAR(255) PRIMARY KEY,\n" +
-            "   companyListId INTEGER NOT NULL\n" +
+            "   userName VARCHAR(255) NOT NULL\n" +
+            ")\n";
+
+    static final String CREATE_COMPANIES_TABLE = "CREATE TABLE Companies (\n" +
+            "   companyId VARCHAR(255) PRIMARY KEY,\n" +
+            "   companyName VARCHAR(255) NOT NULL\n" +
             ")\n";
 
     static final String CREATE_USER_COMPANY_TABLE = "CRATE TABLE UserCompany (\n" +
@@ -25,17 +29,13 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             "   PRIMARY KEY (userId, companyId)\n" +
             ")\n";
 
-    static final String CREATE_COMPANIES_TABLE = "CREATE TABLE Companies (\n" +
-            "   companyId VARCHAR(255) PRIMARY KEY,\n" +
-            "   companyName VARCHAR(255) NOT NULL\n" +
-            ")\n";
-
     public LocalDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        sqLiteDatabase.execSQL(CREATE_USERS_TABLE);
         sqLiteDatabase.execSQL(CREATE_COMPANIES_TABLE);
     }
 
@@ -46,7 +46,30 @@ public class LocalDbHelper extends SQLiteOpenHelper {
          */
     }
 
-    public void createCompany(String companyId, String userId, String companyName) {
+    public void createUser(String userId, String userName) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newUser = new ContentValues();
+        newUser.put("userId", userId);
+        newUser.put("userName", userName);
+        database.insert(TABLE_USERS, null, newUser);
+        database.close();
+    }
+
+    public boolean checkUserExists(String userId) {
+        boolean userExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_USERS + " WHERE companyId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {userId});
+        if (cursor.moveToFirst()) {
+            userExists = true;
+        }
+        cursor.close();
+        database.close();
+        return userExists;
+    }
+
+    public void createCompany(String companyId, String companyName) {
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues newCompany = new ContentValues();
