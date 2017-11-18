@@ -6,12 +6,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ca.uoit.csci4100u.workplace_app.inc.Company;
+
 public class LocalDbHelper extends SQLiteOpenHelper {
 
     static final int DATABASE_VERSION = 1;
+    static final String DATABASE_NAME = "Workplace";
     static final String TABLE_USERS = "Users";
     static final String TABLE_COMPANIES = "Companies";
-    static final String DATABASE_NAME = "Workplace";
+    static final String TABLE_USER_COMPANY = "UserCompany";
 
     static final String CREATE_USERS_TABLE = "CREATE TABLE Users (\n" +
             "   userId VARCHAR(255) PRIMARY KEY,\n" +
@@ -23,7 +29,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             "   companyName VARCHAR(255) NOT NULL\n" +
             ")\n";
 
-    static final String CREATE_USER_COMPANY_TABLE = "CRATE TABLE UserCompany (\n" +
+    static final String CREATE_USER_COMPANY_TABLE = "CREATE TABLE UserCompany (\n" +
             "   userId VARCHAR(255) NOT NULL,\n" +
             "   companyId VARCHAR(255) NOT NULL,\n" +
             "   PRIMARY KEY (userId, companyId)\n" +
@@ -37,6 +43,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(CREATE_USERS_TABLE);
         sqLiteDatabase.execSQL(CREATE_COMPANIES_TABLE);
+        sqLiteDatabase.execSQL(CREATE_USER_COMPANY_TABLE);
     }
 
     @Override
@@ -59,7 +66,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
     public boolean checkUserExists(String userId) {
         boolean userExists = false;
         SQLiteDatabase database = this.getReadableDatabase();
-        String query = "Select * from " + TABLE_USERS + " WHERE companyId =?";
+        String query = "Select * from " + TABLE_USERS + " WHERE userId =?";
         Cursor cursor = database.rawQuery(query, new String[] {userId});
         if (cursor.moveToFirst()) {
             userExists = true;
@@ -90,5 +97,58 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         cursor.close();
         database.close();
         return companyExists;
+    }
+
+    public void createUserCompany(String userId, String companyId) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newUserCompany = new ContentValues();
+        newUserCompany.put("userId", userId);
+        newUserCompany.put("companyId", companyId);
+        database.insert(TABLE_USER_COMPANY, null, newUserCompany);
+        database.close();
+    }
+
+    public boolean checkUserCompanyExists(String userId, String companyId) {
+        boolean userCompanyExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_USER_COMPANY + " WHERE userId =? AND companyId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {userId, companyId});
+        if (cursor.moveToFirst()) {
+            userCompanyExists = true;
+        }
+        cursor.close();
+        database.close();
+        return userCompanyExists;
+    }
+
+    public List<Company> getCompanyListForCurrUser(String userId) {
+        List<Company> companyList = new ArrayList<>();
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        String userCompanyQuery = "Select * from " + TABLE_USER_COMPANY + " WHERE userId =?";
+        Cursor cursor = database.rawQuery(userCompanyQuery, new String[] {userId});
+        List<String> companyIds = new ArrayList<>();
+        cursor.moveToFirst();
+        do {
+            String companyId = cursor.getString(1);
+            companyIds.add(companyId);
+            cursor.moveToNext();
+        } while (!cursor.isAfterLast());
+
+        String companyQuery = "Select * from " + TABLE_COMPANIES + " WHERE companyId =?";
+        for (String companyId : companyIds) {
+            cursor = database.rawQuery(companyQuery, new String[]{companyId});
+            cursor.moveToFirst();
+            do {
+                String companyName = cursor.getString(1);
+                Company newCompany = new Company(companyId, companyName);
+                companyList.add(newCompany);
+                cursor.moveToNext();
+            } while (!cursor.isAfterLast());
+        }
+        cursor.close();
+        database.close();
+        return companyList;
     }
 }

@@ -69,17 +69,29 @@ public class LandingPageActivity extends AppCompatActivity {
 
         localDbHelper = new LocalDbHelper(this);
 
+        final String userId = mAuth.getCurrentUser().getUid();
+        final String userName = mAuth.getCurrentUser().getDisplayName();
+        if (!localDbHelper.checkUserExists(userId)) {
+            localDbHelper.createUser(userId, userName);
+        }
+
+        localDbHelper.getCompanyListForCurrUser(userId);
+
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
-                List<Company> companyListForCurrUser = companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
+                List<Company> companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
                 /*
                  * TODO: Create a local database to check if the remote isn't there
                  */
 //                if (haveNetworkConnection()) {
-//
+//                    companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
+//                } else {
+//                    companyListForCurrUser = localDbHelper.getCompanyListForCurrUser(userId);
 //                }
+
+
                 ArrayAdapter<Company> companyAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, companyListForCurrUser);
                 companyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
                 Spinner spinnerCompanyItems = findViewById(R.id.companyList);
