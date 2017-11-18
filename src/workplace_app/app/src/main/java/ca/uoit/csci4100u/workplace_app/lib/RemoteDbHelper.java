@@ -16,7 +16,7 @@ import ca.uoit.csci4100u.workplace_app.inc.Company;
 /**
  * A helper class meant to do database functionality
  */
-public class DbHelper {
+public class RemoteDbHelper {
 
     // Nodes in the database
     private static final String COMPANIES = "companies";
@@ -30,6 +30,7 @@ public class DbHelper {
     private static final String MESSAGES = "messages";
     private static final String PERMISSIONS = "permissions";
     private static final String EMAIL = "email";
+    private static final String CHAT_NAME = "chat_name";
     public static final String COMPANY_ID = "company_id";
     public static final String CHAT_ID = "chat_id";
 
@@ -39,7 +40,7 @@ public class DbHelper {
     /**
      * Private constructor so this helper class can't be instantiated
      */
-    private DbHelper() {
+    private RemoteDbHelper() {
 
     }
 
@@ -90,7 +91,11 @@ public class DbHelper {
 
         String companyId = database.child(COMPANY_NAME).push().getKey();
         database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyName);
-        database.child(COMPANIES).child(companyId).child(CHATS).child(companyName).child(PERMISSIONS).setValue(false);
+
+        String chatId = database.child(COMPANIES).child(companyId).push().getKey();
+        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(CHAT_NAME).setValue(companyName);
+        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(PERMISSIONS).setValue(false);
+
         database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
 
         database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(companyName);
@@ -151,7 +156,7 @@ public class DbHelper {
      * @param dataSnapshot A snapshot of the database
      * @return A list of Company objects that the user is a member of
      */
-    public static List<Company> getCompanyListForCurrUser(FirebaseAuth auth, DataSnapshot dataSnapshot) {
+    public static List<Company> getCompanyListForCurrUser(FirebaseAuth auth, DataSnapshot dataSnapshot, LocalDbHelper localDbHelper) {
         String userId = auth.getCurrentUser().getUid();
         Iterable<DataSnapshot> companies = dataSnapshot.child(USERS).child(userId).child(COMPANIES).getChildren();
 
@@ -160,7 +165,16 @@ public class DbHelper {
             Company newCompany = new Company(company.getKey().toString(), company.getValue().toString());
             companyList.add(newCompany);
         }
+        saveCompanyListToLocalDatabase(localDbHelper, companyList, userId);
         return companyList;
+    }
+
+    private static void saveCompanyListToLocalDatabase(LocalDbHelper localDbHelper, List<Company> companyList, String userId) {
+        for (Company company : companyList) {
+            if (!localDbHelper.checkCompanyExists(company.getCompanyId())) {
+                localDbHelper.createCompany(company.getCompanyId(), userId, company.getCompanyName());
+            }
+        }
     }
 
     /**
@@ -207,8 +221,11 @@ public class DbHelper {
 
         List<Chat> chatList = new ArrayList<>();
         for (DataSnapshot chat : chats) {
+            String chatId = chat.getKey().toString();
+            String chatName = (String) dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chat.getKey().toString()).child(CHAT_NAME).getValue();
             boolean permission = (Boolean) dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chat.getKey().toString()).child(PERMISSIONS).getValue();
-            Chat newChat = new Chat(chat.getKey().toString(), permission);
+
+            Chat newChat = new Chat(chatId, chatName, permission);
             chatList.add(newChat);
         }
         return chatList;

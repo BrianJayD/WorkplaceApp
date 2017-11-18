@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
+import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
 
 /**
  * The 'CompanySignUpActivity' class which is the activity the user sees when creating a new company
@@ -42,7 +42,7 @@ public class CompanySignUpActivity extends AppCompatActivity {
     public void handleCompanySignUp(View view) {
         final String companyName = ((EditText) findViewById(R.id.companyName)).getText().toString();
         if (!companyName.isEmpty()) {
-            DbHelper.createCompanyDbEntry(mAuth, mDatabase, companyName);
+            RemoteDbHelper.createCompanyDbEntry(mAuth, mDatabase, companyName);
 
             Toast.makeText(CompanySignUpActivity.this, R.string.company_created_successfully,
                     Toast.LENGTH_SHORT).show();

@@ -1,6 +1,9 @@
 package ca.uoit.csci4100u.workplace_app;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -26,7 +29,8 @@ import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Chat;
 import ca.uoit.csci4100u.workplace_app.inc.Company;
-import ca.uoit.csci4100u.workplace_app.lib.DbHelper;
+import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
+import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
 
 /**
  * The 'LandingPageActivity' class which is the main landing page that the user will see after
@@ -40,6 +44,7 @@ public class LandingPageActivity extends AppCompatActivity {
     private DataSnapshot mDataSnapShot;
     private String mCurrCompany;
     private String mCurrChat;
+    private LocalDbHelper localDbHelper;
     private static final String TAG = "LandingPageActivity:d";
     private Toolbar toolbar;
 
@@ -54,7 +59,7 @@ public class LandingPageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing_page);
 
-        toolbar = (Toolbar) findViewById(R.id.landing_toolbar);
+        toolbar = findViewById(R.id.landing_toolbar);
         setSupportActionBar(toolbar);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -62,12 +67,20 @@ public class LandingPageActivity extends AppCompatActivity {
         mCurrCompany = null;
         mCurrChat = null;
 
+        localDbHelper = new LocalDbHelper(this);
+
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
-                List<Company> spinnerCompanyList = DbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot);
-                ArrayAdapter<Company> companyAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, spinnerCompanyList);
+                List<Company> companyListForCurrUser = companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
+                /*
+                 * TODO: Create a local database to check if the remote isn't there
+                 */
+//                if (haveNetworkConnection()) {
+//
+//                }
+                ArrayAdapter<Company> companyAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, companyListForCurrUser);
                 companyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
                 Spinner spinnerCompanyItems = findViewById(R.id.companyList);
                 spinnerCompanyItems.setAdapter(companyAdapter);
@@ -82,7 +95,7 @@ public class LandingPageActivity extends AppCompatActivity {
                     public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                         mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
 
-                        List<Chat> spinnerChatList = DbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany);
+                        List<Chat> spinnerChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany);
                         ArrayAdapter<Chat> chatAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, spinnerChatList);
                         chatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
                         Spinner spinnerChatItems = findViewById(R.id.chatList);
@@ -90,7 +103,7 @@ public class LandingPageActivity extends AppCompatActivity {
 
                         Chat selectedChat = (Chat)(((Spinner)findViewById(R.id.chatList)).getSelectedItem());
                         if (selectedChat != null) {
-                            mCurrChat = selectedChat.getChatName();
+                            mCurrChat = selectedChat.getChatId();
                         }
                     }
 
@@ -148,8 +161,8 @@ public class LandingPageActivity extends AppCompatActivity {
 
         Intent intent =  new Intent(LandingPageActivity.this, ChatActivity.class);
         if (mCurrCompany != null && mCurrChat != null) {
-            intent.putExtra(DbHelper.COMPANY_ID, mCurrCompany);
-            intent.putExtra(DbHelper.CHAT_ID, mCurrChat);
+            intent.putExtra(RemoteDbHelper.COMPANY_ID, mCurrCompany);
+            intent.putExtra(RemoteDbHelper.CHAT_ID, mCurrChat);
             startActivity(intent);
         } else {
             Toast.makeText(LandingPageActivity.this, R.string.select_comp_or_chat,
@@ -180,6 +193,15 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     /**
+     * Check if the device currently is connected to a network
+     * @return True or false based on if the device is connected to a network
+     */
+    private boolean haveNetworkConnection() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
+    }
+
+    /**
      * Handles the onClick function for the 'Add Member' button. This function will add a user to
      * the specified company (through the company list spinner)
      * @param view The view that has been clicked (the button)
@@ -189,11 +211,11 @@ public class LandingPageActivity extends AppCompatActivity {
 
         if (!email.isEmpty()) {
             mCurrCompany = ((Company) ((Spinner) findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
-            String userId = DbHelper.checkEmailExistsAndGetUid(mDataSnapShot, email);
+            String userId = RemoteDbHelper.checkEmailExistsAndGetUid(mDataSnapShot, email);
             if (!userId.isEmpty()) {
                 Toast.makeText(LandingPageActivity.this, R.string.user_added,
                         Toast.LENGTH_SHORT).show();
-                DbHelper.addMemberToCompanyDb(mDatabase, mDataSnapShot, mCurrCompany, userId);
+                RemoteDbHelper.addMemberToCompanyDb(mDatabase, mDataSnapShot, mCurrCompany, userId);
             } else {
                 Toast.makeText(LandingPageActivity.this, R.string.user_does_not_exist,
                         Toast.LENGTH_SHORT).show();

@@ -5,6 +5,7 @@ package ca.uoit.csci4100u.workplace_app.inc;
  */
 public class Chat {
 
+    private String chatId;
     private String chatName;
     private boolean chatPermission;
 
@@ -13,9 +14,26 @@ public class Chat {
      * @param chatName The name of the chat
      * @param chatPermission The permissions of the chat
      */
-    public Chat(String chatName, boolean chatPermission) {
+    public Chat(String chatId, String chatName, boolean chatPermission) {
+        setChatId(chatId);
         setChatName(chatName);
         setChatPermission(chatPermission);
+    }
+
+    /**
+     * Getter for the chat id
+     * @return The chat id
+     */
+    public String getChatId() {
+        return chatId;
+    }
+
+    /**
+     * Setter for the chat id
+     * @param chatId The chat id
+     */
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
     }
 
     /**
