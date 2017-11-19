@@ -31,6 +31,10 @@ public class RemoteDbHelper {
     private static final String PERMISSIONS = "permissions";
     private static final String EMAIL = "email";
     private static final String CHAT_NAME = "chat_name";
+    private static final String MESSAGE_CONTENT = "message";
+    private static final String USER_ID = "user_id";
+    private static final String USER_NAME = "user_name";
+    private static final String TIME_STAMP = "time_stamp";
     public static final String COMPANY_ID = "company_id";
     public static final String CHAT_ID = "chat_id";
 
@@ -120,15 +124,42 @@ public class RemoteDbHelper {
      * @param chatId The chat id associated with the messages needing to be accessed
      * @return A list of Message objects that is associated with combination of the company id and chat id
      */
-    public static List<Message> getDbMessages(DataSnapshot dataSnapshot, String companyId, String chatId) {
+    public static List<Message> getDbMessages(DataSnapshot dataSnapshot, String companyId, String chatId, LocalDbHelper localDbHelper) {
         List<Message> messageList = new ArrayList<>();
 
         Iterable<DataSnapshot> messages = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).getChildren();
         for (DataSnapshot message : messages) {
-            Message dbMessage = message.getValue(Message.class);
-            messageList.add(dbMessage);
+            String messageId = message.getKey().toString();
+            String userId = message.child(USER_ID).getValue().toString();
+            String userName = message.child(USER_NAME).getValue().toString();
+            String timeStamp = message.child(TIME_STAMP).getValue().toString();
+            String messageContent = message.child(MESSAGE_CONTENT).getValue().toString();
+
+            Message newMessage = new Message(messageId, userId, userName, timeStamp, messageContent);
+            messageList.add(newMessage);
+
+            saveUserToLocalDatabase(localDbHelper, userId, userName);
         }
+        saveMessageListToLocalDatabase(localDbHelper, messageList, chatId);
         return messageList;
+    }
+
+    private static void saveUserToLocalDatabase(LocalDbHelper localDbHelper, String userId, String userName) {
+        if (!localDbHelper.checkUserExists(userId)) {
+            localDbHelper.createUser(userId, userName);
+        }
+    }
+
+    private static void saveMessageListToLocalDatabase(LocalDbHelper localDbHelper, List<Message> messageList, String chatId) {
+        for (Message message : messageList) {
+            if (!localDbHelper.checkMessageExists(message.getMessageId())) {
+                localDbHelper.createMessage(message.getMessageId(), message.getUserId(), message.getTimeStamp(), message.getMessage());
+            }
+
+            if (!localDbHelper.checkChatMessageExists(chatId, message.getMessageId())) {
+                localDbHelper.createChatMessage(chatId, message.getMessageId());
+            }
+        }
     }
 
     /**
@@ -143,11 +174,13 @@ public class RemoteDbHelper {
     public static void postUserMessage(DatabaseReference database, DataSnapshot dataSnapshot, FirebaseAuth auth, String companyId, String chatId, String message) {
         String userId = auth.getCurrentUser().getUid();
         String userName = convertUidToDispName(dataSnapshot, userId);
-
         String currentTime = DateFormat.getDateTimeInstance().format(new Date());
-        Message newMessage = new Message(userId, userName, currentTime, message);
 
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).push().setValue(newMessage);
+        String messageId = database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).push().getKey();
+        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(USER_ID).setValue(userId);
+        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(USER_NAME).setValue(userName);
+        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(MESSAGE_CONTENT).setValue(message);
+        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(TIME_STAMP).setValue(currentTime);
     }
 
     /**

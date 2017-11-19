@@ -11,6 +11,7 @@ import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Chat;
 import ca.uoit.csci4100u.workplace_app.inc.Company;
+import ca.uoit.csci4100u.workplace_app.inc.Message;
 
 public class LocalDbHelper extends SQLiteOpenHelper {
 
@@ -21,6 +22,8 @@ public class LocalDbHelper extends SQLiteOpenHelper {
     static final String TABLE_USER_COMPANY = "UserCompany";
     static final String TABLE_CHAT = "Chat";
     static final String TABLE_COMPANY_CHAT = "CompanyChat";
+    static final String TABLE_MESSAGES = "Messages";
+    static final String TABLE_CHAT_MESSAGE = "ChatMessage";
 
     static final String CREATE_USERS_TABLE = "CREATE TABLE Users (\n" +
             "   userId VARCHAR(255) PRIMARY KEY,\n" +
@@ -50,6 +53,19 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             "   PRIMARY KEY (companyId, chatId)\n" +
             ")\n";
 
+    static final String CREATE_MESSAGE_TABLE = "CREATE TABLE Messages (\n" +
+            "   messageId VARCHAR(255) PRIMARY KEY,\n" +
+            "   userId VARCHAR(255) NOT NULL,\n" +
+            "   timeStamp VARCHAR(255) NOT NULL,\n" +
+            "   message VARCHAR(255) NOT NULL\n" +
+            ")\n";
+
+    static final String CREATE_CHAT_MESSAGE_TABLE = "CREATE TABLE ChatMessage (\n" +
+            "   chatId VARCHAR(255) NOT NULL,\n" +
+            "   messageId VARCHAR(255) NOT NULL,\n" +
+            "   PRIMARY KEY (chatId, messageId)\n" +
+            ")\n";
+
     public LocalDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -61,6 +77,8 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_USER_COMPANY_TABLE);
         sqLiteDatabase.execSQL(CREATE_CHAT_TABLE);
         sqLiteDatabase.execSQL(CREATE_COMPANY_CHAT_TABLE);
+        sqLiteDatabase.execSQL(CREATE_MESSAGE_TABLE);
+        sqLiteDatabase.execSQL(CREATE_CHAT_MESSAGE_TABLE);
     }
 
     @Override
@@ -147,22 +165,22 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         Cursor cursor = database.rawQuery(userCompanyQuery, new String[] {userId});
         List<String> companyIds = new ArrayList<>();
         cursor.moveToFirst();
-        do {
+        while (!cursor.isAfterLast()) {
             String companyId = cursor.getString(1);
             companyIds.add(companyId);
             cursor.moveToNext();
-        } while (!cursor.isAfterLast());
+        }
 
         String companyQuery = "Select * from " + TABLE_COMPANIES + " WHERE companyId =?";
         for (String companyId : companyIds) {
             cursor = database.rawQuery(companyQuery, new String[]{companyId});
             cursor.moveToFirst();
-            do {
+            while (!cursor.isAfterLast()) {
                 String companyName = cursor.getString(1);
                 Company newCompany = new Company(companyId, companyName);
                 companyList.add(newCompany);
                 cursor.moveToNext();
-            } while (!cursor.isAfterLast());
+            }
         }
         cursor.close();
         database.close();
@@ -231,17 +249,17 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         Cursor cursor = database.rawQuery(userCompanyQuery, new String[] {companyId});
         List<String> chatIds = new ArrayList<>();
         cursor.moveToFirst();
-        do {
+        while (!cursor.isAfterLast()) {
             String chatId = cursor.getString(1);
             chatIds.add(chatId);
             cursor.moveToNext();
-        } while (!cursor.isAfterLast());
+        }
 
         String companyQuery = "Select * from " + TABLE_CHAT + " WHERE chatId =?";
         for (String chatId : chatIds) {
             cursor = database.rawQuery(companyQuery, new String[]{chatId});
             cursor.moveToFirst();
-            do {
+            while (!cursor.isAfterLast()) {
                 String chatName = cursor.getString(1);
                 int chatPermissions = cursor.getInt(2);
                 boolean chatPerms;
@@ -253,10 +271,101 @@ public class LocalDbHelper extends SQLiteOpenHelper {
                 Chat newChat = new Chat(chatId, chatName, chatPerms);
                 chatList.add(newChat);
                 cursor.moveToNext();
-            } while (!cursor.isAfterLast());
+            }
         }
         cursor.close();
         database.close();
         return chatList;
+    }
+
+    public void createMessage(String messageId, String userId, String timeStamp, String message) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newMessage = new ContentValues();
+        newMessage.put("messageId", messageId);
+        newMessage.put("userId", userId);
+        newMessage.put("timeStamp", timeStamp);
+        newMessage.put("message", message);
+        database.insert(TABLE_MESSAGES, null, newMessage);
+        database.close();
+    }
+
+    public boolean checkMessageExists(String messageId) {
+        boolean messageExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_MESSAGES + " WHERE messageId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {messageId});
+        if (cursor.moveToFirst()) {
+            messageExists = true;
+        }
+        cursor.close();
+        database.close();
+        return messageExists;
+    }
+
+    public void createChatMessage(String chatId, String messageId) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newChatMessage = new ContentValues();
+        newChatMessage.put("chatId", chatId);
+        newChatMessage.put("messageId", messageId);
+        database.insert(TABLE_CHAT_MESSAGE, null, newChatMessage);
+        database.close();
+    }
+
+    public boolean checkChatMessageExists(String chatId, String messageId) {
+        boolean chatMessageExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_CHAT_MESSAGE + " WHERE chatId =? AND messageId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {chatId, messageId});
+        if (cursor.moveToFirst()) {
+            chatMessageExists = true;
+        }
+        cursor.close();
+        database.close();
+        return chatMessageExists;
+    }
+
+    public List<Message> getMessagesForCurrChat(String chatId) {
+        List<Message> messageList = new ArrayList<>();
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        String userCompanyQuery = "Select * from " + TABLE_CHAT_MESSAGE + " WHERE chatId =?";
+        Cursor cursor = database.rawQuery(userCompanyQuery, new String[] {chatId});
+        List<String> messageIds = new ArrayList<>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            String messageId = cursor.getString(1);
+            messageIds.add(messageId);
+            cursor.moveToNext();
+        }
+
+        String messageQuery = "Select * from " + TABLE_MESSAGES + " WHERE messageId =?";
+        String userQuery = "Select * from " + TABLE_USERS + " WHERE userId =? ";
+        for (String messageId : messageIds) {
+            cursor = database.rawQuery(messageQuery, new String[]{messageId});
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                String userId = cursor.getString(1);
+                String timeStamp = cursor.getString(2);
+                String messageContent = cursor.getString(3);
+                String userName = null;
+
+                Cursor newCursor = database.rawQuery(userQuery, new String[]{userId});
+                newCursor.moveToFirst();
+                while (!newCursor.isAfterLast()) {
+                    userName = newCursor.getString(1);
+                    newCursor.moveToNext();
+                }
+                newCursor.close();
+
+                Message newMessage = new Message(messageId, userId, userName, timeStamp, messageContent);
+                messageList.add(newMessage);
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        database.close();
+        return messageList;
     }
 }

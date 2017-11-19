@@ -21,6 +21,7 @@ import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Message;
 import ca.uoit.csci4100u.workplace_app.inc.MessageAdapter;
+import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
 import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
 
 /**
@@ -34,6 +35,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     private String mCurrCompany;
     private String mCurrChat;
     private List<Message> messageList;
+    private LocalDbHelper localDbHelper;
     private static final String TAG = "ChatActivity:d";
 
     /**
@@ -54,17 +56,25 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent landingPageIntent = getIntent();
         mCurrCompany = landingPageIntent.getStringExtra(RemoteDbHelper.COMPANY_ID);
         mCurrChat = landingPageIntent.getStringExtra(RemoteDbHelper.CHAT_ID);
+        localDbHelper = new LocalDbHelper(this);
 
         final ListView feed = findViewById(R.id.messageFeed);
         final MessageAdapter messageAdapter = new MessageAdapter(ChatActivity.this, messageList);
         feed.setAdapter(messageAdapter);
         feed.setOnItemClickListener(ChatActivity.this);
 
+        messageList = localDbHelper.getMessagesForCurrChat(mCurrChat);
+        for (Message message : messageList) {
+            messageAdapter.add(message);
+        }
+        messageAdapter.notifyDataSetChanged();
+        feed.setSelection(messageAdapter.getCount() - 1);
+
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
-                messageList = RemoteDbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat);
+                messageList = RemoteDbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat, localDbHelper);
                 messageAdapter.clear();
                 for (Message message : messageList) {
                     messageAdapter.add(message);

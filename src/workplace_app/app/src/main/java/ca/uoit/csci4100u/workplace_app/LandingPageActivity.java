@@ -72,12 +72,10 @@ public class LandingPageActivity extends AppCompatActivity {
         // Create a database entry for the current user if one does not already exist
         createUserInLocalDatabase(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName());
 
-        // Add a listener to the remote database
+        // Populate the spinners from the local database
+        populateSpinnersFromLocalDatabase();
+        // Add a listener to the remote database that will update the spinners to any new changes
         addListenerToDatabase();
-        // If there is currently no internet connection, populate the spinners from the local database
-        if (!hasNetworkConnection()) {
-            populateSpinnersFromLocalDatabase();
-        }
     }
 
     private void createUserInLocalDatabase(String userId, String userName) {
@@ -117,9 +115,11 @@ public class LandingPageActivity extends AppCompatActivity {
         String userId = mAuth.getCurrentUser().getUid();
         List<Company> companyList = localDbHelper.getCompanyListForCurrUser(userId);
         Spinner companySpinner = setCompanySpinner(companyList);
-        mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
-        List<Chat> chatListForSpecifiedCompany = localDbHelper.getChatListForSpecifiedCompany(mCurrCompany);
-        setChatSpinner(companySpinner, chatListForSpecifiedCompany);
+        if (((Spinner) findViewById(R.id.companyList)).getSelectedItem() != null) {
+            mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
+            List<Chat> chatListForSpecifiedCompany = localDbHelper.getChatListForSpecifiedCompany(mCurrCompany);
+            setChatSpinner(companySpinner, chatListForSpecifiedCompany);
+        }
     }
 
     private Spinner setCompanySpinner(List<Company> companyList) {
@@ -222,15 +222,6 @@ public class LandingPageActivity extends AppCompatActivity {
     public void handleSettings(View view) {
         Intent intent = new Intent(LandingPageActivity.this, SettingsActivity.class);
         startActivity(intent);
-    }
-
-    /**
-     * Check if the device currently is connected to a network
-     * @return True or false based on if the device is connected to a network
-     */
-    private boolean hasNetworkConnection() {
-        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        return cm.getActiveNetworkInfo() != null;
     }
 
     /**

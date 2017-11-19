@@ -5,15 +5,11 @@ package ca.uoit.csci4100u.workplace_app.inc;
  */
 public class Message {
 
+    private String messageId;
     private String timeStamp;
     private String userId;
     private String userName;
     private String message;
-
-    /**
-     * Empty default constructor for the Firebase API to use
-     */
-    public Message(){}
 
     /**
      * Constructor to easily create a message
@@ -22,11 +18,28 @@ public class Message {
      * @param timeStamp The time the message was sent
      * @param message The message information
      */
-    public Message(String userId, String userName, String timeStamp, String message) {
+    public Message(String messageId, String userId, String userName, String timeStamp, String message) {
+        setMessageId(messageId);
         setUserId(userId);
         setUserName(userName);
         setTimeStamp(timeStamp);
         setMessage(message);
+    }
+
+    /**
+     * Getter for the message id
+     * @return The message id
+     */
+    public String getMessageId() {
+        return messageId;
+    }
+
+    /**
+     * Setter for the message id
+     * @param messageId The message id
+     */
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     /**
