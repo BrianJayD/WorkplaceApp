@@ -15,6 +15,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
 import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
 
 /**
@@ -25,6 +26,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private LocalDbHelper localDbHelper;
 
     /**
      * The onCreate method for the 'SettingsActivity' class. This function initializes the activity
@@ -38,6 +40,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        localDbHelper = new LocalDbHelper(this);
     }
 
     /**
@@ -60,7 +63,7 @@ public class SettingsActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 Toast.makeText(SettingsActivity.this, R.string.display_name_update_success,
                                         Toast.LENGTH_SHORT).show();
-                                RemoteDbHelper.updateDbDisplayName(mAuth, mDatabase, displayName);
+                                RemoteDbHelper.updateDbDisplayName(mAuth, mDatabase, displayName, localDbHelper);
                             } else {
                                 Toast.makeText(SettingsActivity.this, R.string.display_name_update_fail,
                                         Toast.LENGTH_SHORT).show();

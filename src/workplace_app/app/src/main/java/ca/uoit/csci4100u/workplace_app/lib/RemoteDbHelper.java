@@ -31,10 +31,6 @@ public class RemoteDbHelper {
     private static final String PERMISSIONS = "permissions";
     private static final String EMAIL = "email";
     private static final String CHAT_NAME = "chat_name";
-    private static final String MESSAGE_CONTENT = "message";
-    private static final String USER_ID = "user_id";
-    private static final String USER_NAME = "user_name";
-    private static final String TIME_STAMP = "time_stamp";
     public static final String COMPANY_ID = "company_id";
     public static final String CHAT_ID = "chat_id";
 
@@ -67,9 +63,10 @@ public class RemoteDbHelper {
      * @param database The firebase database reference
      * @param displayName A string representation of the user's display name
      */
-    public static void updateDbDisplayName(FirebaseAuth auth, DatabaseReference database, final String displayName) {
+    public static void updateDbDisplayName(FirebaseAuth auth, DatabaseReference database, final String displayName, LocalDbHelper localDbHelper) {
         String userId = auth.getCurrentUser().getUid();
         database.child(USERS).child(userId).child(DISPLAY_NAME).setValue(displayName);
+        localDbHelper.updateUserDisplayName(userId, displayName);
     }
 
     /**
@@ -129,16 +126,13 @@ public class RemoteDbHelper {
 
         Iterable<DataSnapshot> messages = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).getChildren();
         for (DataSnapshot message : messages) {
-            String messageId = message.getKey().toString();
-            String userId = message.child(USER_ID).getValue().toString();
-            String userName = message.child(USER_NAME).getValue().toString();
-            String timeStamp = message.child(TIME_STAMP).getValue().toString();
-            String messageContent = message.child(MESSAGE_CONTENT).getValue().toString();
+            Message dbMessage = message.getValue(Message.class);
+            String userId = dbMessage.getUserId();
+            String displayName = convertUidToDispName(dataSnapshot, userId);
+            dbMessage.setUserName(displayName);
+            messageList.add(dbMessage);
 
-            Message newMessage = new Message(messageId, userId, userName, timeStamp, messageContent);
-            messageList.add(newMessage);
-
-            saveUserToLocalDatabase(localDbHelper, userId, userName);
+            saveUserToLocalDatabase(localDbHelper, dbMessage.getUserId(), dbMessage.getUserName());
         }
         saveMessageListToLocalDatabase(localDbHelper, messageList, chatId);
         return messageList;
@@ -177,10 +171,8 @@ public class RemoteDbHelper {
         String currentTime = DateFormat.getDateTimeInstance().format(new Date());
 
         String messageId = database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).push().getKey();
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(USER_ID).setValue(userId);
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(USER_NAME).setValue(userName);
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(MESSAGE_CONTENT).setValue(message);
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).child(TIME_STAMP).setValue(currentTime);
+        Message newMessage = new Message(messageId, userId, userName, currentTime, message);
+        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).setValue(newMessage);
     }
 
     /**

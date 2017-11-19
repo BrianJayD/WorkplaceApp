@@ -368,4 +368,10 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         database.close();
         return messageList;
     }
+
+    public void updateUserDisplayName(String userId, String userName) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        String updateQuery = "UPDATE " + TABLE_USERS + " SET userName='" + userName + "' WHERE userId = '" + userId + "'";
+        database.execSQL(updateQuery);
+    }
 }

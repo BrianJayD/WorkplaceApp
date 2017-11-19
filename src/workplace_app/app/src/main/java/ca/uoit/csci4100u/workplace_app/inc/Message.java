@@ -13,6 +13,7 @@ public class Message {
 
     /**
      * Constructor to easily create a message
+     * @param messageId The message id associated with the user
      * @param userId The id associated with the user
      * @param userName The userName associated with the user
      * @param timeStamp The time the message was sent
@@ -24,6 +25,13 @@ public class Message {
         setUserName(userName);
         setTimeStamp(timeStamp);
         setMessage(message);
+    }
+
+    /**
+     * Empty default constructor for Firebase API
+     */
+    public Message() {
+
     }
 
     /**
