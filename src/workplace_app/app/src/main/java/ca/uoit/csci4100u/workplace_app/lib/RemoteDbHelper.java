@@ -219,7 +219,7 @@ public class RemoteDbHelper {
      * @param companyId A string representation of the specified company id
      * @return A list of Chat objects that the company has
      */
-    public static List<Chat> getChatListForSpecifiedCompany(DataSnapshot dataSnapshot, String companyId) {
+    public static List<Chat> getChatListForSpecifiedCompany(DataSnapshot dataSnapshot, String companyId, LocalDbHelper localDbHelper) {
         Iterable<DataSnapshot> chats = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).getChildren();
 
         List<Chat> chatList = new ArrayList<>();
@@ -231,7 +231,21 @@ public class RemoteDbHelper {
             Chat newChat = new Chat(chatId, chatName, permission);
             chatList.add(newChat);
         }
+        saveChatListToLocalDatabase(localDbHelper, chatList, companyId);
+
         return chatList;
+    }
+
+    private static void saveChatListToLocalDatabase(LocalDbHelper localDbHelper, List<Chat> chatList, String companyId) {
+        for (Chat chat : chatList) {
+            if (!localDbHelper.checkChatExists(chat.getChatId())) {
+                localDbHelper.createChat(chat.getChatId(), chat.getChatName(), chat.getChatPermission());
+            }
+
+            if (!localDbHelper.checkCompanyChatExists(companyId, chat.getChatId())) {
+                localDbHelper.createCompanyChat(companyId, chat.getChatId());
+            }
+        }
     }
 
     /**

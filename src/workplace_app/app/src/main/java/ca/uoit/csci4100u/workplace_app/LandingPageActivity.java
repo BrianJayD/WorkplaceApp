@@ -62,72 +62,92 @@ public class LandingPageActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.landing_toolbar);
         setSupportActionBar(toolbar);
 
+        // Initialize member variables
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         mCurrCompany = null;
         mCurrChat = null;
-
         localDbHelper = new LocalDbHelper(this);
 
-        final String userId = mAuth.getCurrentUser().getUid();
-        final String userName = mAuth.getCurrentUser().getDisplayName();
+        // Create a database entry for the current user if one does not already exist
+        createUserInLocalDatabase(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName());
+
+        // Add a listener to the remote database
+        addListenerToDatabase();
+        // If there is currently no internet connection, populate the spinners from the local database
+        if (!hasNetworkConnection()) {
+            populateSpinnersFromLocalDatabase();
+        }
+    }
+
+    private void createUserInLocalDatabase(String userId, String userName) {
         if (!localDbHelper.checkUserExists(userId)) {
             localDbHelper.createUser(userId, userName);
         }
+    }
 
-        localDbHelper.getCompanyListForCurrUser(userId);
-
+    private void addListenerToDatabase() {
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(final DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
+
+                // Get the current list of companies that the user is a part of
                 List<Company> companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
-                /*
-                 * TODO: Create a local database to check if the remote isn't there
-                 */
-//                if (haveNetworkConnection()) {
-//                    companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
-//                } else {
-//                    companyListForCurrUser = localDbHelper.getCompanyListForCurrUser(userId);
-//                }
 
+                // Set the company adapter
+                Spinner companySpinner = setCompanySpinner(companyListForCurrUser);
 
-                ArrayAdapter<Company> companyAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, companyListForCurrUser);
-                companyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-                Spinner spinnerCompanyItems = findViewById(R.id.companyList);
-                spinnerCompanyItems.setAdapter(companyAdapter);
+                // Get the current selected company and the chat list for that company
+                mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
+                List<Chat> chatListForSpecifiedCompany = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany, localDbHelper);
 
-                Company selectedCompany = (Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem();
-                if (selectedCompany != null) {
-                    mCurrCompany = selectedCompany.getCompanyId();
-                }
-
-                spinnerCompanyItems.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                        mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
-
-                        List<Chat> spinnerChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany);
-                        ArrayAdapter<Chat> chatAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, spinnerChatList);
-                        chatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-                        Spinner spinnerChatItems = findViewById(R.id.chatList);
-                        spinnerChatItems.setAdapter(chatAdapter);
-
-                        Chat selectedChat = (Chat)(((Spinner)findViewById(R.id.chatList)).getSelectedItem());
-                        if (selectedChat != null) {
-                            mCurrChat = selectedChat.getChatId();
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parentView) {
-                    }
-                });
+                // Set the chat adapter
+                setChatSpinner(companySpinner, chatListForSpecifiedCompany);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.d(TAG, "onCancelled:failed");
+            }
+        });
+    }
+
+    private void populateSpinnersFromLocalDatabase() {
+        String userId = mAuth.getCurrentUser().getUid();
+        List<Company> companyList = localDbHelper.getCompanyListForCurrUser(userId);
+        Spinner companySpinner = setCompanySpinner(companyList);
+        mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
+        List<Chat> chatListForSpecifiedCompany = localDbHelper.getChatListForSpecifiedCompany(mCurrCompany);
+        setChatSpinner(companySpinner, chatListForSpecifiedCompany);
+    }
+
+    private Spinner setCompanySpinner(List<Company> companyList) {
+        ArrayAdapter<Company> companyAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, companyList);
+        companyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        Spinner spinnerCompanyItems = findViewById(R.id.companyList);
+        spinnerCompanyItems.setAdapter(companyAdapter);
+        return spinnerCompanyItems;
+    }
+
+    private void setChatSpinner(Spinner companySpinner, final List<Chat> chatList) {
+        companySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+
+                ArrayAdapter<Chat> chatAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, chatList);
+                chatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+                Spinner spinnerChatItems = findViewById(R.id.chatList);
+                spinnerChatItems.setAdapter(chatAdapter);
+
+                Chat selectedChat = (Chat)(((Spinner)findViewById(R.id.chatList)).getSelectedItem());
+                if (selectedChat != null) {
+                    mCurrChat = selectedChat.getChatId();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
             }
         });
     }
@@ -208,7 +228,7 @@ public class LandingPageActivity extends AppCompatActivity {
      * Check if the device currently is connected to a network
      * @return True or false based on if the device is connected to a network
      */
-    private boolean haveNetworkConnection() {
+    private boolean hasNetworkConnection() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null;
     }

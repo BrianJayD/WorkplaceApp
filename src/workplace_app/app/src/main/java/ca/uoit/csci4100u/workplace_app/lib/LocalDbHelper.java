@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.uoit.csci4100u.workplace_app.inc.Chat;
 import ca.uoit.csci4100u.workplace_app.inc.Company;
 
 public class LocalDbHelper extends SQLiteOpenHelper {
@@ -18,6 +19,8 @@ public class LocalDbHelper extends SQLiteOpenHelper {
     static final String TABLE_USERS = "Users";
     static final String TABLE_COMPANIES = "Companies";
     static final String TABLE_USER_COMPANY = "UserCompany";
+    static final String TABLE_CHAT = "Chat";
+    static final String TABLE_COMPANY_CHAT = "CompanyChat";
 
     static final String CREATE_USERS_TABLE = "CREATE TABLE Users (\n" +
             "   userId VARCHAR(255) PRIMARY KEY,\n" +
@@ -35,6 +38,18 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             "   PRIMARY KEY (userId, companyId)\n" +
             ")\n";
 
+    static final String CREATE_CHAT_TABLE = "CREATE TABLE Chat (\n" +
+            "   chatId VARCHAR(255) PRIMARY KEY,\n" +
+            "   chatName VARCHAR(255) NOT NULL,\n" +
+            "   chatPermissions INTEGER NOT NULL\n" +
+            ")\n";
+
+    static final String CREATE_COMPANY_CHAT_TABLE = "CREATE TABLE CompanyChat (\n" +
+            "   companyId VARCHAR(255) NOT NULL,\n" +
+            "   chatId VARCHAR(255) NOT NULL,\n" +
+            "   PRIMARY KEY (companyId, chatId)\n" +
+            ")\n";
+
     public LocalDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -44,6 +59,8 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_USERS_TABLE);
         sqLiteDatabase.execSQL(CREATE_COMPANIES_TABLE);
         sqLiteDatabase.execSQL(CREATE_USER_COMPANY_TABLE);
+        sqLiteDatabase.execSQL(CREATE_CHAT_TABLE);
+        sqLiteDatabase.execSQL(CREATE_COMPANY_CHAT_TABLE);
     }
 
     @Override
@@ -150,5 +167,96 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         cursor.close();
         database.close();
         return companyList;
+    }
+
+    public void createChat(String chatId, String chatName, Boolean chatPermissions){
+        final int TRUE = 1;
+        final int FALSE = 0;
+
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newChat = new ContentValues();
+        newChat.put("chatId", chatId);
+        newChat.put("chatName", chatName);
+        if (chatPermissions) {
+            newChat.put("chatPermissions", TRUE);
+        } else {
+            newChat.put("chatPermissions", FALSE);
+        }
+        database.insert(TABLE_CHAT, null, newChat);
+        database.close();
+    }
+
+    public boolean checkChatExists(String chatId) {
+        boolean chatExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_CHAT + " WHERE chatId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {chatId});
+        if (cursor.moveToFirst()) {
+            chatExists = true;
+        }
+        cursor.close();
+        database.close();
+        return chatExists;
+    }
+
+    public void createCompanyChat(String companyId, String chatId) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newCompanyChat = new ContentValues();
+        newCompanyChat.put("companyId", companyId);
+        newCompanyChat.put("chatId", chatId);
+        database.insert(TABLE_COMPANY_CHAT, null, newCompanyChat);
+        database.close();
+    }
+
+    public boolean checkCompanyChatExists(String companyId, String chatId) {
+        boolean companyChatExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_COMPANY_CHAT + " WHERE companyId =? AND chatId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {companyId, chatId});
+        if (cursor.moveToFirst()) {
+            companyChatExists = true;
+        }
+        cursor.close();
+        database.close();
+        return companyChatExists;
+    }
+
+    public List<Chat> getChatListForSpecifiedCompany(String companyId) {
+        List<Chat> chatList = new ArrayList<>();
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        String userCompanyQuery = "Select * from " + TABLE_COMPANY_CHAT + " WHERE companyId =?";
+        Cursor cursor = database.rawQuery(userCompanyQuery, new String[] {companyId});
+        List<String> chatIds = new ArrayList<>();
+        cursor.moveToFirst();
+        do {
+            String chatId = cursor.getString(1);
+            chatIds.add(chatId);
+            cursor.moveToNext();
+        } while (!cursor.isAfterLast());
+
+        String companyQuery = "Select * from " + TABLE_CHAT + " WHERE chatId =?";
+        for (String chatId : chatIds) {
+            cursor = database.rawQuery(companyQuery, new String[]{chatId});
+            cursor.moveToFirst();
+            do {
+                String chatName = cursor.getString(1);
+                int chatPermissions = cursor.getInt(2);
+                boolean chatPerms;
+                if (chatPermissions == 1) {
+                    chatPerms = true;
+                } else {
+                    chatPerms = false;
+                }
+                Chat newChat = new Chat(chatId, chatName, chatPerms);
+                chatList.add(newChat);
+                cursor.moveToNext();
+            } while (!cursor.isAfterLast());
+        }
+        cursor.close();
+        database.close();
+        return chatList;
     }
 }
