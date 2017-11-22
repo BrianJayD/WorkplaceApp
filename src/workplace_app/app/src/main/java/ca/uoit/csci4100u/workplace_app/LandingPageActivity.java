@@ -93,15 +93,18 @@ public class LandingPageActivity extends AppCompatActivity {
                 // Get the current list of companies that the user is a part of
                 List<Company> companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
 
+                if (companyListForCurrUser.size() != 0) {
+                    Spinner companySpinner = setCompanySpinner(companyListForCurrUser);
+
+                    // Get the current selected company and the chat list for that company
+                    mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
+                    List<Chat> chatListForSpecifiedCompany = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany, localDbHelper);
+
+                    // Set the chat adapter
+                    setChatSpinner(companySpinner, chatListForSpecifiedCompany);
+
+                }
                 // Set the company adapter
-                Spinner companySpinner = setCompanySpinner(companyListForCurrUser);
-
-                // Get the current selected company and the chat list for that company
-                mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
-                List<Chat> chatListForSpecifiedCompany = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany, localDbHelper);
-
-                // Set the chat adapter
-                setChatSpinner(companySpinner, chatListForSpecifiedCompany);
             }
 
             @Override
