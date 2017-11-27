@@ -13,46 +13,35 @@
         tools:layout_editor_absoluteY="8dp"
         tools:layout_editor_absoluteX="8dp">
 
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:text="@string/email"
-            android:gravity="center"
-            android:textAllCaps="true"
-            android:textStyle="bold"
-            android:textSize="20dp"/>
+            android:layout_height="100dp"
+            android:layout_weight="5"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@mipmap/app_logo"/>
+        </RelativeLayout>
 
         <EditText
             android:id="@+id/supportEmail"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:layout_weight="1"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/btnReset"
-                android:layout_width="150dp"
-                android:layout_height="match_parent"
-                android:onClick="handleReset"
-                android:text="@string/reset_password"/>
-
-            <Button
-                android:id="@+id/btnBack"
-                android:layout_width="150dp"
-                android:layout_height="match_parent"
-                android:onClick="handleBack"
-                android:text="@string/back"/>
-
-
-        </LinearLayout>
-
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="30dp"
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:onClick="handleReset"
+            android:text="@string/reset_password"/>
 
     </LinearLayout>
 

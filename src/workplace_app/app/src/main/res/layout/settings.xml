@@ -16,30 +16,32 @@
         tools:layout_editor_absoluteX="8dp"
         tools:layout_editor_absoluteY="8dp">
 
-        <TextView
-            android:id="@+id/textView3"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:gravity="center"
-            android:text="@string/new_email"
-            android:textAllCaps="true"
-            android:textSize="20dp"
-            android:textStyle="bold" />
+            android:layout_height="100dp"
+            android:layout_weight="5"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:src="@mipmap/app_logo"/>
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.05"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/updateEmail"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="0.7"
-                android:gravity="center"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
                 android:hint="@string/new_email"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:gravity="center"
+                android:layout_weight="1"/>
 
             <Button
                 android:id="@+id/button3"
@@ -50,30 +52,20 @@
                 android:text="@string/check" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:gravity="center"
-            android:text="@string/new_display_name"
-            android:textAllCaps="true"
-            android:textSize="20dp"
-            android:textStyle="bold" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.05"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/updateDisplayName"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="0.7"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/new_display_name"
+                android:inputType="textEmailAddress"
                 android:gravity="center"
-                android:hint="@string/new_email"
-                android:inputType="text" />
+                android:layout_weight="1"/>
 
             <Button
                 android:id="@+id/button5"
@@ -84,30 +76,20 @@
                 android:text="@string/check" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:gravity="center"
-            android:text="@string/new_password"
-            android:textAllCaps="true"
-            android:textSize="20dp"
-            android:textStyle="bold" />
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.05"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
             android:orientation="horizontal">
 
             <EditText
                 android:id="@+id/updatePass"
-                android:layout_width="0dp"
-                android:layout_height="50dp"
-                android:layout_weight="0.7"
-                android:gravity="center"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
                 android:hint="@string/new_password"
-                android:inputType="textPassword" />
+                android:inputType="textEmailAddress"
+                android:gravity="center"
+                android:layout_weight="1"/>
 
             <Button
                 android:id="@+id/button4"
@@ -117,13 +99,6 @@
                 android:onClick="handleUpdateNewPassword"
                 android:text="@string/check" />
         </LinearLayout>
-
-        <Button
-            android:id="@+id/button7"
-            android:layout_width="150dp"
-            android:onClick="handleBack"
-            android:layout_height="wrap_content"
-            android:text="@string/back" />
 
     </LinearLayout>
 

@@ -129,15 +129,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles the onClick function for the 'Back' button. This will close the current sub-activity
-     * 'SettingsActivity'
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleBack(View view) {
-        finish();
-    }
-
-    /**
      * A helper function to send an email verification to the email given in the sign up information
      */
     private void sendEmailVerification() {

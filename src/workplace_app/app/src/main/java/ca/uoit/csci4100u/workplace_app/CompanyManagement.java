@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,6 +21,7 @@ public class CompanyManagement extends AppCompatActivity {
     private String mCurrCompany;
     private DatabaseReference mDatabase;
     private DataSnapshot mDataSnapShot;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +31,7 @@ public class CompanyManagement extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference();
         Intent intent = getIntent();
         mCurrCompany = intent.getStringExtra("currCompany");
+        mAuth = FirebaseAuth.getInstance();
 
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
@@ -62,5 +65,10 @@ public class CompanyManagement extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void handleAddChatRoom(View view) {
+        String chatName = ((EditText)findViewById(R.id.newMemberEmail)).getText().toString();
+
     }
 }

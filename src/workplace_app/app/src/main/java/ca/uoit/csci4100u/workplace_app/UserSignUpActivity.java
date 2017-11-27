@@ -59,15 +59,6 @@ public class UserSignUpActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles the onClick function for the 'Back' button. This will close the current sub-activity
-     * 'UserSignUpActivity'
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleBack(View view) {
-        finish();
-    }
-
-    /**
      * A helper function used to create a new Firebase account. This function will create a toast
      * if the account was created successfully or not
      * @param displayName A string representation of the user-specified display name

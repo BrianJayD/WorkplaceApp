@@ -45,15 +45,6 @@ public class SupportActivity extends AppCompatActivity {
     }
 
     /**
-     * Handles the onClick function for the 'Back' button. This will close the current sub-activity
-     * 'SupportActivity'
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleBack(View view) {
-        finish();
-    }
-
-    /**
      * A helper function used to reset the email associated with the Firebase account. This function
      * will create a toast if the reset email was sent successfully or not.
      * @param email A string representation of the user-specified email address
@@ -73,7 +64,4 @@ public class SupportActivity extends AppCompatActivity {
                     }
                 });
     }
-
-
-
 }

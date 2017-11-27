@@ -21,6 +21,7 @@
 
         <ListView
             android:layout_width="match_parent"
+            android:id="@+id/announcements"
             android:layout_height="350dp" />
 
         <LinearLayout
