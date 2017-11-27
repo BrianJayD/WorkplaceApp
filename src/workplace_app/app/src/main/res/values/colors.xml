@@ -7,5 +7,6 @@
     <color name="background_color_user">#7caeff</color>
     <color name="border_color">#b7b7b7</color>
     <color name="list_view_divider">#ffffff</color>
+    <color name="drawer">#8e8e8e</color>
 
 </resources>

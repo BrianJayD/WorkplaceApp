@@ -1,21 +1,17 @@
 package ca.uoit.csci4100u.workplace_app;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,11 +38,12 @@ public class LandingPageActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private DataSnapshot mDataSnapShot;
-    private String mCurrCompany;
-    private String mCurrChat;
-    private LocalDbHelper localDbHelper;
+    private Company mCurrCompany;
+    private Chat mCurrChat;
+    private LocalDbHelper mLocalDbHelper;
+    private List<Company> mCompanyList;
+    private List<Chat> mChatList;
     private static final String TAG = "LandingPageActivity:d";
-    private Toolbar toolbar;
 
     /**
      * The onCreate method for the 'LandingPageActivity' class. This function initializes the activity
@@ -58,29 +55,97 @@ public class LandingPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing_page);
+    }
 
-        toolbar = findViewById(R.id.landing_toolbar);
-        setSupportActionBar(toolbar);
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         // Initialize member variables
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         mCurrCompany = null;
         mCurrChat = null;
-        localDbHelper = new LocalDbHelper(this);
+        mLocalDbHelper = new LocalDbHelper(this);
 
         // Create a database entry for the current user if one does not already exist
         createUserInLocalDatabase(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName());
 
-        // Populate the spinners from the local database
-        populateSpinnersFromLocalDatabase();
         // Add a listener to the remote database that will update the spinners to any new changes
         addListenerToDatabase();
+
+        // Update variables from local database, remote listener will override these if the database changes
+        updateFromLocalDB();
+
+        // Setup the drawer
+        populateDrawer();
+    }
+
+    private void updateFromLocalDB() {
+        String userId = mAuth.getCurrentUser().getUid();
+
+        mCompanyList = mLocalDbHelper.getCompanyListForCurrUser(userId);
+        View view = findViewById(R.id.companyFeatures);
+
+        if (mCompanyList.size() > 0) {
+            mCurrCompany = mCompanyList.get(0);
+            view.setVisibility(View.VISIBLE);
+            mChatList = mLocalDbHelper.getChatListForSpecifiedCompany(mCurrCompany.getCompanyId());
+            updateUserInterface();
+        } else {
+            view.setVisibility(View.GONE);
+            TextView title = findViewById(R.id.selectedCompany);
+            title.setText(getString(R.string.no_company));
+        }
+    }
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener{
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mCurrCompany = mCompanyList.get(position);
+            mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper);
+            updateUserInterface();
+        }
+    }
+
+    private void updateUserInterface(){
+        updateSpinner();
+        updateTitle();
+    }
+
+    private void updateTitle() {
+        TextView title = findViewById(R.id.selectedCompany);
+        title.setText(mCurrCompany.getCompanyName());
+    }
+
+    private void updateSpinner(){
+        ArrayAdapter<Chat> chatAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, mChatList);
+        chatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        Spinner spinnerChatItems = findViewById(R.id.chatList);
+        spinnerChatItems.setAdapter(chatAdapter);
+
+        Chat selectedChat = (Chat)(((Spinner)findViewById(R.id.chatList)).getSelectedItem());
+        if (selectedChat != null) {
+            mCurrChat = selectedChat;
+        }
+    }
+
+    private void populateDrawer() {
+        ListView drawerList = findViewById(R.id.left_drawer);
+        drawerList.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, mCompanyList));
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.settings_menu, menu);
+        return true;
     }
 
     private void createUserInLocalDatabase(String userId, String userName) {
-        if (!localDbHelper.checkUserExists(userId)) {
-            localDbHelper.createUser(userId, userName);
+        if (!mLocalDbHelper.checkUserExists(userId)) {
+            mLocalDbHelper.createUser(userId, userName);
         }
     }
 
@@ -91,20 +156,11 @@ public class LandingPageActivity extends AppCompatActivity {
                 mDataSnapShot = dataSnapshot;
 
                 // Get the current list of companies that the user is a part of
-                List<Company> companyListForCurrUser = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, localDbHelper);
-
-                if (companyListForCurrUser.size() != 0) {
-                    Spinner companySpinner = setCompanySpinner(companyListForCurrUser);
-
-                    // Get the current selected company and the chat list for that company
-                    mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
-                    List<Chat> chatListForSpecifiedCompany = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany, localDbHelper);
-
-                    // Set the chat adapter
-                    setChatSpinner(companySpinner, chatListForSpecifiedCompany);
-
+                mCompanyList = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, mLocalDbHelper);
+                if (mCompanyList.size() > 0) {
+                    mCurrCompany = mCompanyList.get(0);
+                    mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper);
                 }
-                // Set the company adapter
             }
 
             @Override
@@ -114,75 +170,41 @@ public class LandingPageActivity extends AppCompatActivity {
         });
     }
 
-    private void populateSpinnersFromLocalDatabase() {
-        String userId = mAuth.getCurrentUser().getUid();
-        List<Company> companyList = localDbHelper.getCompanyListForCurrUser(userId);
-        Spinner companySpinner = setCompanySpinner(companyList);
-        if (((Spinner) findViewById(R.id.companyList)).getSelectedItem() != null) {
-            mCurrCompany = ((Company)((Spinner)findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
-            List<Chat> chatListForSpecifiedCompany = localDbHelper.getChatListForSpecifiedCompany(mCurrCompany);
-            setChatSpinner(companySpinner, chatListForSpecifiedCompany);
-        }
-    }
-
-    private Spinner setCompanySpinner(List<Company> companyList) {
-        ArrayAdapter<Company> companyAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, companyList);
-        companyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        Spinner spinnerCompanyItems = findViewById(R.id.companyList);
-        spinnerCompanyItems.setAdapter(companyAdapter);
-        return spinnerCompanyItems;
-    }
-
-    private void setChatSpinner(Spinner companySpinner, final List<Chat> chatList) {
-        companySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-
-                ArrayAdapter<Chat> chatAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, chatList);
-                chatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-                Spinner spinnerChatItems = findViewById(R.id.chatList);
-                spinnerChatItems.setAdapter(chatAdapter);
-
-                Chat selectedChat = (Chat)(((Spinner)findViewById(R.id.chatList)).getSelectedItem());
-                if (selectedChat != null) {
-                    mCurrChat = selectedChat.getChatId();
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-            }
-        });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater menuInflater = getMenuInflater();
-        menuInflater.inflate(R.menu.settings_menu, menu);
-        return true;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.menu_item_settings:
-                Intent intent = new Intent(LandingPageActivity.this, SettingsActivity.class);
+                intent = new Intent(LandingPageActivity.this, SettingsActivity.class);
                 startActivity(intent);
                 return true;
-
+            case R.id.menu_management:
+                if (mCurrCompany != null) {
+                    intent = new Intent(LandingPageActivity.this, CompanyManagement.class);
+                    intent.putExtra("currCompany", mCurrCompany.getCompanyId());
+                    startActivity(intent);
+                    return true;
+                }
+            case R.id.create_company:
+                intent = new Intent(LandingPageActivity.this, CompanySignUpActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_sign_out:
+                mAuth.signOut();
+                intent = new Intent(LandingPageActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    /**
-     * Handles the onClick function for the 'Company Sign Up' button. This function starts the
-     * sub-activity 'CompanySignUpActivity'
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleCompanySignUp(View view) {
-        Intent intent = new Intent(LandingPageActivity.this, CompanySignUpActivity.class);
-        startActivity(intent);
+    public void handleMaps(View view) {
+
+    }
+
+    public void handleCalendar(View view) {
+
     }
 
     /**
@@ -191,61 +213,14 @@ public class LandingPageActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleChat(View view) {
-        Company selectedCompany = (Company)(((Spinner)findViewById(R.id.companyList)).getSelectedItem());
-        mCurrCompany = selectedCompany.getCompanyId();
-
         Intent intent =  new Intent(LandingPageActivity.this, ChatActivity.class);
         if (mCurrCompany != null && mCurrChat != null) {
-            intent.putExtra(RemoteDbHelper.COMPANY_ID, mCurrCompany);
-            intent.putExtra(RemoteDbHelper.CHAT_ID, mCurrChat);
+            intent.putExtra(RemoteDbHelper.COMPANY_ID, mCurrCompany.getCompanyId());
+            intent.putExtra(RemoteDbHelper.CHAT_ID, mCurrChat.getChatId());
             startActivity(intent);
         } else {
             Toast.makeText(LandingPageActivity.this, R.string.select_comp_or_chat,
                     Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Handles the onClick function for the 'Sign Out' button. This function will start the
-     * sub-activity 'LoginActivity' and then close the current activity after signing the user out
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleSignOut(View view) {
-        mAuth.signOut();
-        Intent intent = new Intent(LandingPageActivity.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    /**
-     * Handles the onClick function for the 'Settings' button. This function will start the
-     * sub-activity 'SettingsActivity'.
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleSettings(View view) {
-        Intent intent = new Intent(LandingPageActivity.this, SettingsActivity.class);
-        startActivity(intent);
-    }
-
-    /**
-     * Handles the onClick function for the 'Add Member' button. This function will add a user to
-     * the specified company (through the company list spinner)
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleAddMember(View view) {
-        String email = ((EditText)findViewById(R.id.newMemberEmail)).getText().toString();
-
-        if (!email.isEmpty()) {
-            mCurrCompany = ((Company) ((Spinner) findViewById(R.id.companyList)).getSelectedItem()).getCompanyId();
-            String userId = RemoteDbHelper.checkEmailExistsAndGetUid(mDataSnapShot, email);
-            if (!userId.isEmpty()) {
-                Toast.makeText(LandingPageActivity.this, R.string.user_added,
-                        Toast.LENGTH_SHORT).show();
-                RemoteDbHelper.addMemberToCompanyDb(mDatabase, mDataSnapShot, mCurrCompany, userId);
-            } else {
-                Toast.makeText(LandingPageActivity.this, R.string.user_does_not_exist,
-                        Toast.LENGTH_SHORT).show();
-            }
         }
     }
 }

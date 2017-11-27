@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".LandingPageActivity">
     <item
         android:id="@+id/menu_item_settings"
-        android:title="@string/settings">
-    </item>
+        android:title="@string/user_settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_management"
+        android:title="@string/company_management"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/create_company"
+        android:title="@string/create_company"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_sign_out"
+        android:title="@string/sign_out"
+        app:showAsAction="never" />
 </menu>
