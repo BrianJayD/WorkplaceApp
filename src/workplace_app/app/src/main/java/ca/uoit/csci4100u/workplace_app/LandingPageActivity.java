@@ -112,7 +112,7 @@ public class LandingPageActivity extends AppCompatActivity {
             mCurrCompany = null;
             mCurrChat = null;
             view.setVisibility(View.GONE);
-            TextView title = findViewById(R.id.selectedCompany);
+            TextView title = (TextView) findViewById(R.id.selectedCompany);
             title.setText(getString(R.string.no_company));
         }
     }
@@ -132,14 +132,14 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     private void updateTitle() {
-        TextView title = findViewById(R.id.selectedCompany);
+        TextView title = (TextView)findViewById(R.id.selectedCompany);
         title.setText(mCurrCompany.getCompanyName());
     }
 
     private void updateSpinner(){
         ArrayAdapter<Chat> chatAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_spinner_item, mChatList);
         chatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
-        Spinner spinnerChatItems = findViewById(R.id.chatList);
+        Spinner spinnerChatItems = (Spinner) findViewById(R.id.chatList);
         spinnerChatItems.setAdapter(chatAdapter);
 
         Chat selectedChat = (Chat)(((Spinner)findViewById(R.id.chatList)).getSelectedItem());
@@ -149,7 +149,7 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     private void populateDrawer() {
-        ListView drawerList = findViewById(R.id.left_drawer);
+        ListView drawerList = (ListView)findViewById(R.id.left_drawer);
         drawerList.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, mCompanyList));
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -216,6 +216,8 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     public void handleMaps(View view) {
+        Intent showMap = new Intent(this, MapsActivity.class);
+        startActivity(showMap);
 
     }
 

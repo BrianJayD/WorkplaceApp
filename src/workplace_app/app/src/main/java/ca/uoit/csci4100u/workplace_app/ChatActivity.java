@@ -60,7 +60,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         mCurrChat = landingPageIntent.getStringExtra(RemoteDbHelper.CHAT_ID);
         localDbHelper = new LocalDbHelper(this);
 
-        final ListView feed = findViewById(R.id.messageFeed);
+        final ListView feed = (ListView) findViewById(R.id.messageFeed);
         final MessageAdapter messageAdapter = new MessageAdapter(ChatActivity.this, messageList);
         feed.setAdapter(messageAdapter);
         feed.setOnItemClickListener(ChatActivity.this);
