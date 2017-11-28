@@ -152,12 +152,12 @@ public class RemoteDbHelper {
 
     public static void deleteCompany(DatabaseReference database, DataSnapshot dataSnapshot, String companyId, LocalDbHelper localDbHelper, Context context) {
         if (isNetworkAvailable(context)) {
-            database.child(COMPANIES).child(companyId).removeValue();
             Iterable<DataSnapshot> users = dataSnapshot.child(USERS).getChildren();
             for (DataSnapshot user : users) {
                 String key = user.getKey();
                 database.child(USERS).child(key).child(COMPANIES).child(companyId).removeValue();
             }
+            database.child(COMPANIES).child(companyId).removeValue();
             deleteCompanyFromLocalDatabase(localDbHelper, companyId);
         }
     }
