@@ -82,6 +82,9 @@ public class LandingPageActivity extends AppCompatActivity {
 
         // Setup the drawer
         populateDrawer();
+
+        // Force onPrepareOptionsMenu to be called again
+        invalidateOptionsMenu();
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -106,6 +109,8 @@ public class LandingPageActivity extends AppCompatActivity {
             mChatList = mLocalDbHelper.getChatListForSpecifiedCompany(mCurrCompany.getCompanyId());
             updateUserInterface();
         } else {
+            mCurrCompany = null;
+            mCurrChat = null;
             view.setVisibility(View.GONE);
             TextView title = findViewById(R.id.selectedCompany);
             title.setText(getString(R.string.no_company));
