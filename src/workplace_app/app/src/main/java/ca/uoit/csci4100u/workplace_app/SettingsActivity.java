@@ -63,7 +63,7 @@ public class SettingsActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 Toast.makeText(SettingsActivity.this, R.string.display_name_update_success,
                                         Toast.LENGTH_SHORT).show();
-                                RemoteDbHelper.updateDbDisplayName(mAuth, mDatabase, displayName, localDbHelper);
+                                RemoteDbHelper.updateDbDisplayName(mAuth, mDatabase, displayName, localDbHelper, SettingsActivity.this);
                             } else {
                                 Toast.makeText(SettingsActivity.this, R.string.display_name_update_fail,
                                         Toast.LENGTH_SHORT).show();
@@ -117,7 +117,7 @@ public class SettingsActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 Toast.makeText(SettingsActivity.this, R.string.email_update_success,
                                         Toast.LENGTH_SHORT).show();
-                                RemoteDbHelper.updateDbEmail(mAuth, mDatabase, email);
+                                RemoteDbHelper.updateDbEmail(mAuth, mDatabase, email, SettingsActivity.this);
                                 sendEmailVerification();
                             } else {
                                 Toast.makeText(SettingsActivity.this, R.string.email_update_fail,

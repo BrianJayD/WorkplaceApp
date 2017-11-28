@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
     static final String TABLE_COMPANY_CHAT = "CompanyChat";
     static final String TABLE_MESSAGES = "Messages";
     static final String TABLE_CHAT_MESSAGE = "ChatMessage";
+    static final String TABLE_PERMISSIONS = "Permissions";
 
     static final String CREATE_USERS_TABLE = "CREATE TABLE Users (\n" +
             "   userId VARCHAR(255) PRIMARY KEY,\n" +
@@ -66,6 +68,13 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             "   PRIMARY KEY (chatId, messageId)\n" +
             ")\n";
 
+    static final String CREATE_PERMISSIONS_TABLE = "CREATE TABLE Permissions (\n" +
+            "   permissions INTEGER NOT NULL,\n" +
+            "   userId VARCHAR(255) NOT NULL,\n" +
+            "   companyId VARCHAR(255) NOT NULL,\n" +
+            "   PRIMARY KEY (userId, companyId)\n" +
+            ")\n";
+
     public LocalDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -79,6 +88,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_COMPANY_CHAT_TABLE);
         sqLiteDatabase.execSQL(CREATE_MESSAGE_TABLE);
         sqLiteDatabase.execSQL(CREATE_CHAT_MESSAGE_TABLE);
+        sqLiteDatabase.execSQL(CREATE_PERMISSIONS_TABLE);
     }
 
     @Override
@@ -187,20 +197,13 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         return companyList;
     }
 
-    public void createChat(String chatId, String chatName, Boolean chatPermissions){
-        final int TRUE = 1;
-        final int FALSE = 0;
-
+    public void createChat(String chatId, String chatName, int chatPermissions){
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues newChat = new ContentValues();
         newChat.put("chatId", chatId);
         newChat.put("chatName", chatName);
-        if (chatPermissions) {
-            newChat.put("chatPermissions", TRUE);
-        } else {
-            newChat.put("chatPermissions", FALSE);
-        }
+        newChat.put("chatPermissions", chatPermissions);
         database.insert(TABLE_CHAT, null, newChat);
         database.close();
     }
@@ -262,13 +265,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             while (!cursor.isAfterLast()) {
                 String chatName = cursor.getString(1);
                 int chatPermissions = cursor.getInt(2);
-                boolean chatPerms;
-                if (chatPermissions == 1) {
-                    chatPerms = true;
-                } else {
-                    chatPerms = false;
-                }
-                Chat newChat = new Chat(chatId, chatName, chatPerms);
+                Chat newChat = new Chat(chatId, chatName, chatPermissions);
                 chatList.add(newChat);
                 cursor.moveToNext();
             }
@@ -373,5 +370,79 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase database = this.getWritableDatabase();
         String updateQuery = "UPDATE " + TABLE_USERS + " SET userName='" + userName + "' WHERE userId = '" + userId + "'";
         database.execSQL(updateQuery);
+        database.close();
+    }
+
+    public void createPermissions(int permissions, String userId, String companyId) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newPermissions = new ContentValues();
+        newPermissions.put("permissions", permissions);
+        newPermissions.put("userId", userId);
+        newPermissions.put("companyId", companyId);
+        database.insert(TABLE_PERMISSIONS, null, newPermissions);
+        database.close();
+    }
+
+    public boolean checkPermissionsExists(String userId, String companyId) {
+        boolean permissionsExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_PERMISSIONS + " WHERE userId =? AND companyId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {userId, companyId});
+        if (cursor.moveToFirst()) {
+            permissionsExists = true;
+        }
+        cursor.close();
+        database.close();
+        return permissionsExists;
+    }
+
+    public int getPermissionsForUserCompany(String userId, String companyId) {
+        int permission = -1;
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        String permissionsQuery = "Select * from " + TABLE_PERMISSIONS + " WHERE userId =? AND companyId =?";
+        Cursor cursor = database.rawQuery(permissionsQuery, new String[] {userId, companyId});
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            permission = cursor.getInt(0);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        database.close();
+        return permission;
+    }
+
+    public void deleteMessage(String messageId) {
+        SQLiteDatabase database = this.getWritableDatabase();
+        String deleteQuery = "DELETE FROM " + TABLE_MESSAGES + " WHERE messageId =?";
+        database.execSQL(deleteQuery, new String[] {messageId});
+        database.close();
+    }
+
+    public void deleteCompany(String companyId) {
+        List<Chat> chatList = getChatListForSpecifiedCompany(companyId);
+
+        for (Chat chat : chatList) {
+            String chatId = chat.getChatId();
+            List<Message> messageList = getMessagesForCurrChat(chatId);
+            for (Message message : messageList) {
+                String messageId = message.getMessageId();
+                SQLiteDatabase database = this.getWritableDatabase();
+                database.delete(TABLE_MESSAGES, "messageId =?", new String[]{messageId});
+                database.close();
+            }
+            SQLiteDatabase database = this.getWritableDatabase();
+            database.delete(TABLE_CHAT, "chatId =?", new String[]{chatId});
+            database.delete(TABLE_CHAT_MESSAGE, "chatId =?", new String[]{chatId});
+            database.close();
+        }
+
+        SQLiteDatabase database = this.getWritableDatabase();
+        database.delete(TABLE_COMPANIES, "companyId =?", new String[]{companyId});
+        database.delete(TABLE_USER_COMPANY, "companyId =?", new String[]{companyId});
+        database.delete(TABLE_PERMISSIONS, "companyId =?", new String[]{companyId});
+        database.delete(TABLE_COMPANY_CHAT, "companyId =?", new String[]{companyId});
+        database.close();
     }
 }

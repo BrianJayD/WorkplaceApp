@@ -7,14 +7,14 @@ public class Chat {
 
     private String chatId;
     private String chatName;
-    private boolean chatPermission;
+    private int chatPermission;
 
     /**
      * Constructor to easily create a chat
      * @param chatName The name of the chat
      * @param chatPermission The permissions of the chat
      */
-    public Chat(String chatId, String chatName, boolean chatPermission) {
+    public Chat(String chatId, String chatName, int chatPermission) {
         setChatId(chatId);
         setChatName(chatName);
         setChatPermission(chatPermission);
@@ -40,7 +40,7 @@ public class Chat {
      * Getter for the chat permission
      * @return The permission level of the chat
      */
-    public boolean getChatPermission() {
+    public int getChatPermission() {
         return chatPermission;
     }
 
@@ -48,7 +48,7 @@ public class Chat {
      * Setter for the chat permission
      * @param chatPermission The permission level of the chat
      */
-    public void setChatPermission(boolean chatPermission) {
+    public void setChatPermission(int chatPermission) {
         this.chatPermission = chatPermission;
     }
 

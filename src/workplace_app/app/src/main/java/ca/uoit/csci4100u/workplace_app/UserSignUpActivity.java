@@ -73,7 +73,7 @@ public class UserSignUpActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             setDisplayName(displayName);
                             sendEmailVerification();
-                            RemoteDbHelper.createUserDbEntry(mAuth, mDatabase, displayName);
+                            RemoteDbHelper.createUserDbEntry(mAuth, mDatabase, displayName, UserSignUpActivity.this);
                         } else {
                             // TODO: Check if we need to do our own error messages since it's not in a resource file
                             String errorMessage = task.getException().getMessage();

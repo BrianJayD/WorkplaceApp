@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,6 +28,8 @@ import ca.uoit.csci4100u.workplace_app.inc.Chat;
 import ca.uoit.csci4100u.workplace_app.inc.Company;
 import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
 import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
+
+import static android.os.SystemClock.sleep;
 
 /**
  * The 'LandingPageActivity' class which is the main landing page that the user will see after
@@ -55,11 +58,6 @@ public class LandingPageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.landing_page);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
 
         // Initialize member variables
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -68,17 +66,32 @@ public class LandingPageActivity extends AppCompatActivity {
         mCurrChat = null;
         mLocalDbHelper = new LocalDbHelper(this);
 
-        // Create a database entry for the current user if one does not already exist
-        createUserInLocalDatabase(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName());
-
         // Add a listener to the remote database that will update the spinners to any new changes
         addListenerToDatabase();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Create a database entry for the current user if one does not already exist
+        createUserInLocalDatabase(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getDisplayName());
 
         // Update variables from local database, remote listener will override these if the database changes
         updateFromLocalDB();
 
         // Setup the drawer
         populateDrawer();
+    }
+
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.menu_management);
+        if(mCurrCompany == null) {
+            item.setVisible(false);
+        } else {
+            item.setVisible(true);
+        }
+        return true;
     }
 
     private void updateFromLocalDB() {
@@ -103,7 +116,7 @@ public class LandingPageActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mCurrCompany = mCompanyList.get(position);
-            mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper);
+            mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
             updateUserInterface();
         }
     }
@@ -156,10 +169,10 @@ public class LandingPageActivity extends AppCompatActivity {
                 mDataSnapShot = dataSnapshot;
 
                 // Get the current list of companies that the user is a part of
-                mCompanyList = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, mLocalDbHelper);
+                mCompanyList = RemoteDbHelper.getCompanyListForCurrUser(mAuth, mDataSnapShot, mLocalDbHelper, LandingPageActivity.this);
                 if (mCompanyList.size() > 0) {
                     mCurrCompany = mCompanyList.get(0);
-                    mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper);
+                    mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
                 }
             }
 
@@ -179,12 +192,10 @@ public class LandingPageActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.menu_management:
-                if (mCurrCompany != null) {
-                    intent = new Intent(LandingPageActivity.this, CompanyManagement.class);
-                    intent.putExtra("currCompany", mCurrCompany.getCompanyId());
-                    startActivity(intent);
-                    return true;
-                }
+                intent = new Intent(LandingPageActivity.this, CompanyManagement.class);
+                intent.putExtra("currCompany", mCurrCompany.getCompanyId());
+                startActivity(intent);
+                return true;
             case R.id.create_company:
                 intent = new Intent(LandingPageActivity.this, CompanySignUpActivity.class);
                 startActivity(intent);
@@ -213,7 +224,11 @@ public class LandingPageActivity extends AppCompatActivity {
      * @param view The view that has been clicked (the button)
      */
     public void handleChat(View view) {
-        Intent intent =  new Intent(LandingPageActivity.this, ChatActivity.class);
+        Intent intent = new Intent(LandingPageActivity.this, ChatActivity.class);
+        Chat selectedChat = (Chat)(((Spinner)findViewById(R.id.chatList)).getSelectedItem());
+        if (selectedChat != null) {
+            mCurrChat = selectedChat;
+        }
         if (mCurrCompany != null && mCurrChat != null) {
             intent.putExtra(RemoteDbHelper.COMPANY_ID, mCurrCompany.getCompanyId());
             intent.putExtra(RemoteDbHelper.CHAT_ID, mCurrChat.getChatId());

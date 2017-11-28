@@ -49,6 +49,57 @@
                 android:text="@string/add_member" />
 
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.29"
+            android:id="@+id/adminFeatures"
+            android:visibility="visible"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="0dp"
+                android:weightSum="1">
+
+                <EditText
+                    android:id="@+id/newChat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="57dp"
+                    android:layout_margin="20dp"
+                    android:gravity="center"
+                    android:hint="@string/chat_title"
+                    android:inputType="textEmailAddress"
+                    android:layout_weight="0.29" />
+
+                <Button
+                    android:id="@+id/btnNewChat"
+                    android:layout_width="128dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="handleAddChatRoom"
+                    android:text="@string/add_chat"
+                    android:layout_weight="0.10" />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnDeleteCompany"
+                android:layout_width="128dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="0.10"
+                android:onClick="handleDeleteCompany"
+                android:text="@string/delete_company"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

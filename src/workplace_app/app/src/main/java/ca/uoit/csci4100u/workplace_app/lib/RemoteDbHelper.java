@@ -1,5 +1,9 @@
 package ca.uoit.csci4100u.workplace_app.lib;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.util.Log;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -24,13 +28,14 @@ public class RemoteDbHelper {
     private static final String CHATS = "chats";
     private static final String MEMBERS = "members";
     private static final String USERS = "users";
-    private static final String ADMIN = "admin";
-    private static final String MEMBER = "member";
     private static final String DISPLAY_NAME = "display_name";
     private static final String MESSAGES = "messages";
     private static final String PERMISSIONS = "permissions";
     private static final String EMAIL = "email";
     private static final String CHAT_NAME = "chat_name";
+    public static final String ADMIN = "3";
+    public static final String MODERATOR = "2";
+    public static final String MEMBER = "1";
     public static final String COMPANY_ID = "company_id";
     public static final String CHAT_ID = "chat_id";
 
@@ -44,17 +49,24 @@ public class RemoteDbHelper {
 
     }
 
+    public static boolean isNetworkAvailable(Context context) {
+        final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
+    }
+
     /**
      * A helper function to create a new user in the database
      * @param auth The firebase authentication
      * @param database The firebase database reference
      * @param displayName A string representation of the user's display name
      */
-    public static void createUserDbEntry(FirebaseAuth auth, DatabaseReference database, final String displayName) {
-        String userId = auth.getCurrentUser().getUid();
-        String email = auth.getCurrentUser().getEmail();
-        database.child(USERS).child(userId).child(DISPLAY_NAME).setValue(displayName);
-        database.child(USERS).child(userId).child(EMAIL).setValue(email);
+    public static void createUserDbEntry(FirebaseAuth auth, DatabaseReference database, final String displayName, Context context) {
+        if (isNetworkAvailable(context)) {
+            String userId = auth.getCurrentUser().getUid();
+            String email = auth.getCurrentUser().getEmail();
+            database.child(USERS).child(userId).child(DISPLAY_NAME).setValue(displayName);
+            database.child(USERS).child(userId).child(EMAIL).setValue(email);
+        }
     }
 
     /**
@@ -63,10 +75,12 @@ public class RemoteDbHelper {
      * @param database The firebase database reference
      * @param displayName A string representation of the user's display name
      */
-    public static void updateDbDisplayName(FirebaseAuth auth, DatabaseReference database, final String displayName, LocalDbHelper localDbHelper) {
-        String userId = auth.getCurrentUser().getUid();
-        database.child(USERS).child(userId).child(DISPLAY_NAME).setValue(displayName);
-        localDbHelper.updateUserDisplayName(userId, displayName);
+    public static void updateDbDisplayName(FirebaseAuth auth, DatabaseReference database, final String displayName, LocalDbHelper localDbHelper, Context context) {
+        if (isNetworkAvailable(context)) {
+            String userId = auth.getCurrentUser().getUid();
+            database.child(USERS).child(userId).child(DISPLAY_NAME).setValue(displayName);
+            localDbHelper.updateUserDisplayName(userId, displayName);
+        }
     }
 
     /**
@@ -75,9 +89,11 @@ public class RemoteDbHelper {
      * @param database The firebase database reference
      * @param email A string representation of the user's email
      */
-    public static void updateDbEmail(FirebaseAuth auth, DatabaseReference database, final String email) {
-        String userId = auth.getCurrentUser().getUid();
-        database.child(USERS).child(userId).child(EMAIL).setValue(email);
+    public static void updateDbEmail(FirebaseAuth auth, DatabaseReference database, final String email, Context context) {
+        if (isNetworkAvailable(context)) {
+            String userId = auth.getCurrentUser().getUid();
+            database.child(USERS).child(userId).child(EMAIL).setValue(email);
+        }
     }
 
     /**
@@ -87,19 +103,67 @@ public class RemoteDbHelper {
      * @param database The firebase database reference
      * @param companyName A string representation of the company name
      */
-    public static void createCompanyDbEntry(FirebaseAuth auth, DatabaseReference database, final String companyName) {
-        String userId = auth.getCurrentUser().getUid();
+    public static boolean createCompanyDbEntry(FirebaseAuth auth, DatabaseReference database, final String companyName, LocalDbHelper localDbHelper, Context context) {
+        if (isNetworkAvailable(context)) {
+            String userId = auth.getCurrentUser().getUid();
 
-        String companyId = database.child(COMPANY_NAME).push().getKey();
-        database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyName);
+            String companyId = database.child(COMPANY_NAME).push().getKey();
+            database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyName);
 
-        String chatId = database.child(COMPANIES).child(companyId).push().getKey();
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(CHAT_NAME).setValue(companyName);
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(PERMISSIONS).setValue(false);
+            createChatDbEntry(database, companyId, companyName, context);
+            database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
 
-        database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
+            database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(companyName);
 
-        database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(companyName);
+            savePermissionsToLocalDatabase(userId, companyId, Integer.parseInt(ADMIN), localDbHelper);
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean createChatDbEntry(DatabaseReference database, String companyId, String chatName, Context context) {
+        if (isNetworkAvailable(context)) {
+            String chatId = database.child(COMPANIES).child(companyId).push().getKey();
+            database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(PERMISSIONS).setValue(MEMBER);
+            database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(CHAT_NAME).setValue(chatName);
+            return true;
+        }
+        return false;
+    }
+
+    private static void savePermissionsToLocalDatabase(String userId, String companyId, int permissions, LocalDbHelper localDbHelper) {
+        if(!localDbHelper.checkPermissionsExists(userId, companyId)) {
+            localDbHelper.createPermissions(permissions, userId, companyId);
+        }
+    }
+
+    public static void deleteMessage(String companyId, String chatId, String messageId, DatabaseReference database, LocalDbHelper localDbHelper, Context context) {
+        if (isNetworkAvailable(context)) {
+            database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).removeValue();
+            deleteMessageFromLocalDatabase(localDbHelper, messageId);
+        }
+    }
+
+    private static void deleteMessageFromLocalDatabase(LocalDbHelper localDbHelper, String messageId) {
+        if (localDbHelper.checkMessageExists(messageId)) {
+            localDbHelper.deleteMessage(messageId);
+        }
+    }
+
+    public static void deleteCompany(DatabaseReference database, DataSnapshot dataSnapshot, String companyId, LocalDbHelper localDbHelper, Context context) {
+        if (isNetworkAvailable(context)) {
+            database.child(COMPANIES).child(companyId).removeValue();
+            Iterable<DataSnapshot> users = dataSnapshot.child(USERS).getChildren();
+            for (DataSnapshot user : users) {
+                String key = user.getKey();
+                database.child(USERS).child(key).child(COMPANIES).child(companyId).removeValue();
+            }
+            deleteCompanyFromLocalDatabase(localDbHelper, companyId);
+        }
+    }
+
+    private static void deleteCompanyFromLocalDatabase(LocalDbHelper localDbHelper, String companyId) {
+        localDbHelper.deleteCompany(companyId);
     }
 
     /**
@@ -109,8 +173,11 @@ public class RemoteDbHelper {
      * @param userId The user id associated with the user
      * @return The display name associated with the user
      */
-    public static String convertUidToDispName(DataSnapshot dataSnapshot, String userId) {
-        return dataSnapshot.child(USERS).child(userId).child(DISPLAY_NAME).getValue().toString();
+    public static String convertUidToDispName(DataSnapshot dataSnapshot, String userId, Context context) {
+        if (isNetworkAvailable(context)) {
+            return dataSnapshot.child(USERS).child(userId).child(DISPLAY_NAME).getValue().toString();
+        }
+        return null;
     }
 
     /**
@@ -121,20 +188,22 @@ public class RemoteDbHelper {
      * @param chatId The chat id associated with the messages needing to be accessed
      * @return A list of Message objects that is associated with combination of the company id and chat id
      */
-    public static List<Message> getDbMessages(DataSnapshot dataSnapshot, String companyId, String chatId, LocalDbHelper localDbHelper) {
+    public static List<Message> getDbMessages(DataSnapshot dataSnapshot, String companyId, String chatId, LocalDbHelper localDbHelper, Context context) {
         List<Message> messageList = new ArrayList<>();
+        if (isNetworkAvailable(context)) {
 
-        Iterable<DataSnapshot> messages = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).getChildren();
-        for (DataSnapshot message : messages) {
-            Message dbMessage = message.getValue(Message.class);
-            String userId = dbMessage.getUserId();
-            String displayName = convertUidToDispName(dataSnapshot, userId);
-            dbMessage.setUserName(displayName);
-            messageList.add(dbMessage);
+            Iterable<DataSnapshot> messages = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).getChildren();
+            for (DataSnapshot message : messages) {
+                Message dbMessage = message.getValue(Message.class);
+                String userId = dbMessage.getUserId();
+                String displayName = convertUidToDispName(dataSnapshot, userId, context);
+                dbMessage.setUserName(displayName);
+                messageList.add(dbMessage);
 
-            saveUserToLocalDatabase(localDbHelper, dbMessage.getUserId(), dbMessage.getUserName());
+                saveUserToLocalDatabase(localDbHelper, dbMessage.getUserId(), dbMessage.getUserName());
+            }
+            saveMessageListToLocalDatabase(localDbHelper, messageList, chatId);
         }
-        saveMessageListToLocalDatabase(localDbHelper, messageList, chatId);
         return messageList;
     }
 
@@ -165,14 +234,16 @@ public class RemoteDbHelper {
      * @param chatId The chat id associated with the message being posted
      * @param message The message that contains the information being posted
      */
-    public static void postUserMessage(DatabaseReference database, DataSnapshot dataSnapshot, FirebaseAuth auth, String companyId, String chatId, String message) {
-        String userId = auth.getCurrentUser().getUid();
-        String userName = convertUidToDispName(dataSnapshot, userId);
-        String currentTime = DateFormat.getDateTimeInstance().format(new Date());
+    public static void postUserMessage(DatabaseReference database, DataSnapshot dataSnapshot, FirebaseAuth auth, String companyId, String chatId, String message, Context context) {
+        if (isNetworkAvailable(context)) {
+            String userId = auth.getCurrentUser().getUid();
+            String userName = convertUidToDispName(dataSnapshot, userId, context);
+            String currentTime = DateFormat.getDateTimeInstance().format(new Date());
 
-        String messageId = database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).push().getKey();
-        Message newMessage = new Message(messageId, userId, userName, currentTime, message);
-        database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).setValue(newMessage);
+            String messageId = database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).push().getKey();
+            Message newMessage = new Message(messageId, userId, userName, currentTime, message);
+            database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(MESSAGES).child(messageId).setValue(newMessage);
+        }
     }
 
     /**
@@ -181,16 +252,18 @@ public class RemoteDbHelper {
      * @param dataSnapshot A snapshot of the database
      * @return A list of Company objects that the user is a member of
      */
-    public static List<Company> getCompanyListForCurrUser(FirebaseAuth auth, DataSnapshot dataSnapshot, LocalDbHelper localDbHelper) {
-        String userId = auth.getCurrentUser().getUid();
-        Iterable<DataSnapshot> companies = dataSnapshot.child(USERS).child(userId).child(COMPANIES).getChildren();
-
+    public static List<Company> getCompanyListForCurrUser(FirebaseAuth auth, DataSnapshot dataSnapshot, LocalDbHelper localDbHelper, Context context) {
         List<Company> companyList = new ArrayList<>();
-        for (DataSnapshot company : companies) {
-            Company newCompany = new Company(company.getKey().toString(), company.getValue().toString());
-            companyList.add(newCompany);
+        if (isNetworkAvailable(context)) {
+            String userId = auth.getCurrentUser().getUid();
+            Iterable<DataSnapshot> companies = dataSnapshot.child(USERS).child(userId).child(COMPANIES).getChildren();
+
+            for (DataSnapshot company : companies) {
+                Company newCompany = new Company(company.getKey().toString(), company.getValue().toString());
+                companyList.add(newCompany);
+            }
+            saveCompanyListToLocalDatabase(localDbHelper, companyList, userId);
         }
-        saveCompanyListToLocalDatabase(localDbHelper, companyList, userId);
         return companyList;
     }
 
@@ -208,18 +281,19 @@ public class RemoteDbHelper {
     /**
      * A helper function which will check to see if the email specified is inside of the database. If
      * it is then return it, otherwise return an empty string
-     * TODO: Potentially move to async task since this operation could be quite slow
      * @param dataSnapshot A snapshot of the database
      * @param email A string representation of the specified email to be searched for
      * @return The string representation of the user id associated with the email or an empty string
      */
-    public static String checkEmailExistsAndGetUid(DataSnapshot dataSnapshot, String email) {
-        Iterable<DataSnapshot> users = dataSnapshot.child(USERS).getChildren();
-        for (DataSnapshot user : users) {
-            String userId = user.getKey();
-            String dbEmail = dataSnapshot.child(USERS).child(userId).child(EMAIL).getValue().toString();
-            if (email.compareTo(dbEmail) == 0) {
-                return userId;
+    public static String checkEmailExistsAndGetUid(DataSnapshot dataSnapshot, String email, Context context) {
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> users = dataSnapshot.child(USERS).getChildren();
+            for (DataSnapshot user : users) {
+                String userId = user.getKey();
+                String dbEmail = dataSnapshot.child(USERS).child(userId).child(EMAIL).getValue().toString();
+                if (email.compareTo(dbEmail) == 0) {
+                    return userId;
+                }
             }
         }
         return EMPTY_STRING;
@@ -233,9 +307,13 @@ public class RemoteDbHelper {
      * @param companyId A string representation of the specified company id
      * @param userId A string representation of the specified user id
      */
-    public static void addMemberToCompanyDb(DatabaseReference database, DataSnapshot dataSnapshot, String companyId, String userId) {
-        database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(MEMBER);
-        database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(convertCompanyIdToCompanyName(dataSnapshot, companyId));
+    public static void addMemberToCompanyDb(DatabaseReference database, DataSnapshot dataSnapshot, String companyId, String userId, LocalDbHelper localDbHelper, Context context) {
+        if (isNetworkAvailable(context)) {
+            database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(MEMBER);
+            database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(convertCompanyIdToCompanyName(dataSnapshot, companyId));
+
+            savePermissionsToLocalDatabase(userId, companyId, Integer.parseInt(MEMBER), localDbHelper);
+        }
     }
 
     /**
@@ -244,20 +322,21 @@ public class RemoteDbHelper {
      * @param companyId A string representation of the specified company id
      * @return A list of Chat objects that the company has
      */
-    public static List<Chat> getChatListForSpecifiedCompany(DataSnapshot dataSnapshot, String companyId, LocalDbHelper localDbHelper) {
-        Iterable<DataSnapshot> chats = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).getChildren();
-
+    public static List<Chat> getChatListForSpecifiedCompany(DataSnapshot dataSnapshot, String companyId, LocalDbHelper localDbHelper, Context context) {
         List<Chat> chatList = new ArrayList<>();
-        for (DataSnapshot chat : chats) {
-            String chatId = chat.getKey().toString();
-            String chatName = (String) dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chat.getKey().toString()).child(CHAT_NAME).getValue();
-            boolean permission = (Boolean) dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chat.getKey().toString()).child(PERMISSIONS).getValue();
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> chats = dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).getChildren();
 
-            Chat newChat = new Chat(chatId, chatName, permission);
-            chatList.add(newChat);
+            for (DataSnapshot chat : chats) {
+                String chatId = chat.getKey().toString();
+                String chatName = (String) dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chat.getKey().toString()).child(CHAT_NAME).getValue();
+                int permission = Integer.parseInt(dataSnapshot.child(COMPANIES).child(companyId).child(CHATS).child(chat.getKey().toString()).child(PERMISSIONS).getValue().toString());
+
+                Chat newChat = new Chat(chatId, chatName, permission);
+                chatList.add(newChat);
+            }
+            saveChatListToLocalDatabase(localDbHelper, chatList, companyId);
         }
-        saveChatListToLocalDatabase(localDbHelper, chatList, companyId);
-
         return chatList;
     }
 

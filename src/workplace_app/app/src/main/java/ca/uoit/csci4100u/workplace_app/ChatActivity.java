@@ -1,5 +1,7 @@
 package ca.uoit.csci4100u.workplace_app;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -74,7 +76,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
-                messageList = RemoteDbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat, localDbHelper);
+                messageList = RemoteDbHelper.getDbMessages(mDataSnapShot, mCurrCompany, mCurrChat, localDbHelper, ChatActivity.this);
                 messageAdapter.clear();
                 for (Message message : messageList) {
                     messageAdapter.add(message);
@@ -93,8 +95,26 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     @Override
     public void onItemClick(AdapterView aView, View source,
                             int position, long id) {
-
-        // Do nothing right now
+        final Message selectedMessage = messageList.get(position);
+        if (RemoteDbHelper.isNetworkAvailable(ChatActivity.this)) {
+            if (selectedMessage.getUserId().compareTo(mAuth.getUid()) == 0) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(ChatActivity.this);
+                builder.setMessage(R.string.delete_this)
+                        .setTitle(R.string.delete_this);
+                builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        RemoteDbHelper.deleteMessage(mCurrCompany, mCurrChat, selectedMessage.getMessageId(), mDatabase, localDbHelper, ChatActivity.this);
+                    }
+                });
+                builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // Do nothing
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
     }
 
 
@@ -107,17 +127,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         final String message = ((EditText) findViewById(R.id.userMessage)).getText().toString();
 
         if (!message.isEmpty()) {
-            RemoteDbHelper.postUserMessage(mDatabase, mDataSnapShot, mAuth, mCurrCompany, mCurrChat, message);
+            RemoteDbHelper.postUserMessage(mDatabase, mDataSnapShot, mAuth, mCurrCompany, mCurrChat, message, ChatActivity.this);
         }
         ((EditText) findViewById(R.id.userMessage)).setText("");
-    }
-
-    /**
-     * Handles the onClick function for the 'Back' button. This will close the current sub-activity
-     * 'ChatActivity'
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleBack(View view) {
-        finish();
     }
 }

@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
 import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
 
 /**
@@ -19,6 +20,7 @@ public class CompanySignUpActivity extends AppCompatActivity {
 
     private DatabaseReference mDatabase;
     private FirebaseAuth mAuth;
+    private LocalDbHelper mLocalDbHelper;
 
     /**
      * The onCreate method for the 'CompanySignUpActivity' class. This function initializes the activity
@@ -32,6 +34,7 @@ public class CompanySignUpActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        mLocalDbHelper = new LocalDbHelper(this);
     }
 
     /**
@@ -42,19 +45,15 @@ public class CompanySignUpActivity extends AppCompatActivity {
     public void handleCompanySignUp(View view) {
         final String companyName = ((EditText) findViewById(R.id.companyName)).getText().toString();
         if (!companyName.isEmpty()) {
-            RemoteDbHelper.createCompanyDbEntry(mAuth, mDatabase, companyName);
+            boolean result = RemoteDbHelper.createCompanyDbEntry(mAuth, mDatabase, companyName, mLocalDbHelper, CompanySignUpActivity.this);
 
-            Toast.makeText(CompanySignUpActivity.this, R.string.company_created_successfully,
-                    Toast.LENGTH_SHORT).show();
+            if(result) {
+                Toast.makeText(CompanySignUpActivity.this, R.string.company_created_successfully,
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(CompanySignUpActivity.this, R.string.company_not_created,
+                        Toast.LENGTH_SHORT).show();
+            }
         }
-    }
-
-    /**
-     * Handles the onClick function for the 'Back' button. This will close the current sub-activity
-     * 'CompanySignUpActivity'
-     * @param view The view that has been clicked (the button)
-     */
-    public void handleBack(View view) {
-        finish();
     }
 }
