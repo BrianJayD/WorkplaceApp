@@ -22,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Calendar;
 import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Chat;
@@ -222,7 +223,8 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     public void handleCalendar(View view) {
-
+        Intent showCalendar = new Intent(this, CalendarActivity.class);
+        startActivity(showCalendar);
     }
 
     /**

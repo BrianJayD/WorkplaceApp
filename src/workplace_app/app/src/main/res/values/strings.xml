@@ -58,4 +58,6 @@
     <string name="chat_title">Chat Title</string>
     <string name="are_you_sure">Are you sure?</string>
     <string name="title_activity_maps">Map</string>
+    <string name="x">X</string>
+    <string name="confirm">Confirm</string>
 </resources>

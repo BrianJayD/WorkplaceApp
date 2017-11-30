@@ -361,4 +361,6 @@ public class RemoteDbHelper {
     private static String convertCompanyIdToCompanyName(DataSnapshot dataSnapshot, String companyId) {
         return dataSnapshot.child(COMPANIES).child(companyId).child(COMPANY_NAME).getValue().toString();
     }
+
+
 }
