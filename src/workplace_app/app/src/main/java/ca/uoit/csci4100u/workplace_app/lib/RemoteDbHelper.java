@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import ca.uoit.csci4100u.workplace_app.inc.Member;
 import ca.uoit.csci4100u.workplace_app.inc.Message;
 import ca.uoit.csci4100u.workplace_app.inc.Chat;
 import ca.uoit.csci4100u.workplace_app.inc.Company;
@@ -69,7 +70,7 @@ public class RemoteDbHelper {
         }
     }
 
-    /**
+     /**
      * A helper function to update the display name in the database
      * @param auth The firebase authentication
      * @param database The firebase database reference
@@ -362,5 +363,25 @@ public class RemoteDbHelper {
         return dataSnapshot.child(COMPANIES).child(companyId).child(COMPANY_NAME).getValue().toString();
     }
 
+    public static List<Member> getCompanyMembers(DataSnapshot dataSnapshot, String companyId, LocalDbHelper localDbHelper, Context context) {
+        List<Member> memberList = new ArrayList<>();
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> members = dataSnapshot.child(COMPANIES).child(companyId).child(MEMBERS).getChildren();
+
+            for (DataSnapshot member : members) {
+
+                String memberId = member.getKey().toString();
+                String memberName = (String) dataSnapshot.child(USERS).child(member.getKey()).child(DISPLAY_NAME).getValue();
+                String email = (String) dataSnapshot.child(USERS).child(member.getKey()).child(EMAIL).getValue();
+                Member newMember = new Member(memberId, memberName, email);
+
+
+                memberList.add(newMember);
+            }
+
+        }
+
+        return memberList;
+    }
 
 }

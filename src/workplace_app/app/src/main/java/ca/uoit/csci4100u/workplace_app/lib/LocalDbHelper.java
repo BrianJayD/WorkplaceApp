@@ -390,11 +390,13 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         String query = "Select * from " + TABLE_PERMISSIONS + " WHERE userId =? AND companyId =?";
         Cursor cursor = database.rawQuery(query, new String[] {userId, companyId});
         if (cursor.moveToFirst()) {
-            permissionsExists = true;
+            //permissionsExists = true;
+            return true;
         }
         cursor.close();
         database.close();
-        return permissionsExists;
+        //return permissionsExists;
+        return false;
     }
 
     public int getPermissionsForUserCompany(String userId, String companyId) {
