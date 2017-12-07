@@ -224,6 +224,7 @@ public class LandingPageActivity extends AppCompatActivity {
 
     public void handleCalendar(View view) {
         Intent showCalendar = new Intent(this, CalendarActivity.class);
+        showCalendar.putExtra("companyId", mCurrCompany.getCompanyId());
         startActivity(showCalendar);
     }
 
