@@ -60,4 +60,9 @@
     <string name="title_activity_maps">Map</string>
     <string name="x">X</string>
     <string name="confirm">Confirm</string>
+    <string name="employee">Employee</string>
+    <string name="employee_name">Employee Name</string>
+    <string name="new_shift">New Shift</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
 </resources>

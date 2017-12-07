@@ -1,34 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="350dp"
-    android:layout_height="460dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#aaaaaa"
     android:layout_gravity="center">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/new_shift"
+            android:textSize="26sp"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:layout_gravity="center"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/close_add"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:text="@string/x"
+            android:textStyle="bold"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:background="@drawable/circle_background"
+            android:layout_margin="3dp"/>
+
+    </RelativeLayout>
+
+
     <TextView
-        android:id="@+id/close_add"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:text="@string/x"
-        android:textStyle="bold"
-        android:layout_gravity="end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/employee"
+        android:textSize="16sp"
         android:gravity="center"
-        android:textColor="#ffffff"
-        android:background="@drawable/circle_background"
-        android:layout_margin="3dp"/>
+        android:textStyle="bold"/>
 
-    <TextView
+    <Spinner
+        android:id="@+id/spinner_employee"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Employee:"
-        android:gravity="center"/>
-
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Name"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:gravity="center"/>
@@ -36,13 +56,16 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Date:"
-        android:gravity="center"/>
+        android:text="@string/date"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="16sp"/>
 
-    <EditText
+    <TextView
+        android:id="@+id/edit_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Choose date"
+        android:hint=""
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:gravity="center"/>
@@ -50,22 +73,26 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Time:"
-        android:gravity="center"/>
+        android:text="@string/time"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="16sp"/>
 
-    <EditText
+    <TimePicker
+        android:id="@+id/shift_date_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Choose time"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:gravity="center"/>
+        android:gravity="center"
+        android:timePickerMode="spinner"/>
 
     <Button
         android:id="@+id/btn_confirm_new_shift"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/confirm"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:onClick="getMembers"/>
 
 </LinearLayout>
