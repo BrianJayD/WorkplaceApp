@@ -34,6 +34,7 @@ public class RemoteDbHelper {
     private static final String PERMISSIONS = "permissions";
     private static final String EMAIL = "email";
     private static final String CHAT_NAME = "chat_name";
+    private static final String ANNOUNCEMENTS = "announcements";
     public static final String ADMIN = "3";
     public static final String MODERATOR = "2";
     public static final String MEMBER = "1";
@@ -117,14 +118,54 @@ public class RemoteDbHelper {
             database.child(USERS).child(userId).child(COMPANIES).child(companyId).setValue(companyName);
 
             savePermissionsToLocalDatabase(userId, companyId, Integer.parseInt(ADMIN), localDbHelper);
+
             return true;
         }
         return false;
     }
 
+    public static int getPermissionForCurrUser(DataSnapshot dataSnapshot, String userId, String companyId, Context context, LocalDbHelper localDbHelper) {
+        if (isNetworkAvailable(context)) {
+            int permission = Integer.parseInt(dataSnapshot.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).getValue(String.class));
+            savePermissionsToLocalDatabase(userId, companyId, permission, localDbHelper);
+            return permission;
+        }
+        return -1;
+    }
+
+    public static boolean createAnnouncementDbEntry(DatabaseReference database, String companyId, String announcement, Context context) {
+        if (isNetworkAvailable(context)) {
+            String announcementId = database.child(COMPANIES).child(companyId).child(ANNOUNCEMENTS).push().getKey();
+            database.child(COMPANIES).child(companyId).child(ANNOUNCEMENTS).child(announcementId).setValue(announcement);
+            return true;
+        }
+        return false;
+    }
+
+    public static List<String> getAnnouncementsForSpecifiedCompany(DataSnapshot dataSnapshot, String companyId, LocalDbHelper localDbHelper, Context context) {
+        List<String> announcementsList = new ArrayList<>();
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> announcements = dataSnapshot.child(COMPANIES).child(companyId).child(ANNOUNCEMENTS).getChildren();
+            for (DataSnapshot announcement : announcements) {
+                String announcementId = announcement.getKey();
+                String announce = announcement.getValue(String.class);
+                announcementsList.add(announce);
+
+                saveAnnouncementToLocalDatabase(announcementId, announce, companyId, localDbHelper);
+            }
+        }
+        return announcementsList;
+    }
+
+    private static void saveAnnouncementToLocalDatabase(String announcementId, String announcement, String companyId, LocalDbHelper localDbHelper) {
+        if (!localDbHelper.checkAnnouncementExists(announcementId, companyId)) {
+            localDbHelper.createAnnouncement(announcementId, companyId, announcement);
+        }
+    }
+
     public static boolean createChatDbEntry(DatabaseReference database, String companyId, String chatName, Context context) {
         if (isNetworkAvailable(context)) {
-            String chatId = database.child(COMPANIES).child(companyId).push().getKey();
+            String chatId = database.child(COMPANIES).child(companyId).child(CHATS).push().getKey();
             database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(PERMISSIONS).setValue(MEMBER);
             database.child(COMPANIES).child(companyId).child(CHATS).child(chatId).child(CHAT_NAME).setValue(chatName);
             return true;

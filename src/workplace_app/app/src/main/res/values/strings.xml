@@ -65,4 +65,9 @@
     <string name="new_shift">New Shift</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
+    <string name="new_announcement">New Announcement</string>
+    <string name="add_announcement">Add Announcement</string>
+    <string name="announcement_created">Announcement Created</string>
+    <string name="announcement_not_created">Announcement Not Created</string>
+    <string name="no_network_connection">No Network Connection</string>
 </resources>

@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -117,18 +118,22 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
-
     /**
      * The onClick function for the "Post" button. This function will take the information the user
      * has typed and post it to the database
      * @param view The view that has been clicked (the button)
      */
     public void handlePostMessage(View view) {
-        final String message = ((EditText) findViewById(R.id.userMessage)).getText().toString();
+        if (!RemoteDbHelper.isNetworkAvailable(ChatActivity.this)) {
+            Toast.makeText(ChatActivity.this, R.string.no_network_connection,
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            final String message = ((EditText) findViewById(R.id.userMessage)).getText().toString();
 
-        if (!message.isEmpty()) {
-            RemoteDbHelper.postUserMessage(mDatabase, mDataSnapShot, mAuth, mCurrCompany, mCurrChat, message, ChatActivity.this);
+            if (!message.isEmpty()) {
+                RemoteDbHelper.postUserMessage(mDatabase, mDataSnapShot, mAuth, mCurrCompany, mCurrChat, message, ChatActivity.this);
+            }
+            ((EditText) findViewById(R.id.userMessage)).setText("");
         }
-        ((EditText) findViewById(R.id.userMessage)).setText("");
     }
 }

@@ -87,6 +87,35 @@
 
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="0dp"
+                android:weightSum="1">
+
+                <EditText
+                    android:id="@+id/newAnnouncement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="57dp"
+                    android:layout_margin="20dp"
+                    android:gravity="center"
+                    android:hint="@string/new_announcement"
+                    android:inputType="textEmailAddress"
+                    android:layout_weight="0.29" />
+
+                <Button
+                    android:id="@+id/btnNewAnnouncement"
+                    android:layout_width="140dp"
+                    android:layout_height="wrap_content"
+                    android:onClick="handleAddAnnouncement"
+                    android:text="@string/add_announcement"
+                    android:layout_weight="0.10" />
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btnDeleteCompany"
                 android:layout_width="128dp"

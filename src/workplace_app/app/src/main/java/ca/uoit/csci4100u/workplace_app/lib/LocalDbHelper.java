@@ -26,6 +26,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
     static final String TABLE_MESSAGES = "Messages";
     static final String TABLE_CHAT_MESSAGE = "ChatMessage";
     static final String TABLE_PERMISSIONS = "Permissions";
+    static final String TABLE_ANNOUNCEMENT = "Announcements";
 
     static final String CREATE_USERS_TABLE = "CREATE TABLE Users (\n" +
             "   userId VARCHAR(255) PRIMARY KEY,\n" +
@@ -75,6 +76,12 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             "   PRIMARY KEY (userId, companyId)\n" +
             ")\n";
 
+    static final String CREATE_ANNOUNCEMENTS_TABLE = "CREATE TABLE Announcements (\n" +
+            "   announcementId VARCHAR(255) PRIMARY KEY,\n" +
+            "   announcement VARCHAR(255) NOT NULL,\n" +
+            "   companyId VARCHAR(255) NOT NULL\n" +
+            ")\n";
+
     public LocalDbHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -89,6 +96,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(CREATE_MESSAGE_TABLE);
         sqLiteDatabase.execSQL(CREATE_CHAT_MESSAGE_TABLE);
         sqLiteDatabase.execSQL(CREATE_PERMISSIONS_TABLE);
+        sqLiteDatabase.execSQL(CREATE_ANNOUNCEMENTS_TABLE);
     }
 
     @Override
@@ -445,6 +453,46 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         database.delete(TABLE_USER_COMPANY, "companyId =?", new String[]{companyId});
         database.delete(TABLE_PERMISSIONS, "companyId =?", new String[]{companyId});
         database.delete(TABLE_COMPANY_CHAT, "companyId =?", new String[]{companyId});
+        database.delete(TABLE_ANNOUNCEMENT, "companyId =?", new String[]{companyId});
         database.close();
+    }
+
+    public void createAnnouncement(String announcementId, String companyId, String announcement) {
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        ContentValues newAnnouncement = new ContentValues();
+        newAnnouncement.put("announcementId", announcementId);
+        newAnnouncement.put("companyId", companyId);
+        newAnnouncement.put("announcement", announcement);
+        database.insert(TABLE_ANNOUNCEMENT, null, newAnnouncement);
+        database.close();
+    }
+
+    public boolean checkAnnouncementExists(String announcementId, String companyId) {
+        boolean announcementExists = false;
+        SQLiteDatabase database = this.getReadableDatabase();
+        String query = "Select * from " + TABLE_ANNOUNCEMENT + " WHERE announcementId =? AND companyId =?";
+        Cursor cursor = database.rawQuery(query, new String[] {announcementId, companyId});
+        if (cursor.moveToFirst()) {
+            announcementExists = true;
+        }
+        cursor.close();
+        database.close();
+        return announcementExists;
+    }
+
+    public List<String> getAnnouncementsForCompany(String companyId) {
+        List<String> announcements = new ArrayList<>();
+
+        SQLiteDatabase database = this.getReadableDatabase();
+        String announcementsQuery = "Select * from " + TABLE_ANNOUNCEMENT + " WHERE companyId =?";
+        Cursor cursor = database.rawQuery(announcementsQuery, new String[] {companyId});
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            String announcement = cursor.getString(1);
+            announcements.add(announcement);
+            cursor.moveToNext();
+        }
+        return announcements;
     }
 }

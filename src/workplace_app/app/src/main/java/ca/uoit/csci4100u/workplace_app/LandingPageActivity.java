@@ -22,15 +22,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Chat;
 import ca.uoit.csci4100u.workplace_app.inc.Company;
 import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
 import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
-
-import static android.os.SystemClock.sleep;
 
 /**
  * The 'LandingPageActivity' class which is the main landing page that the user will see after
@@ -47,6 +45,7 @@ public class LandingPageActivity extends AppCompatActivity {
     private LocalDbHelper mLocalDbHelper;
     private List<Company> mCompanyList;
     private List<Chat> mChatList;
+    private List<String> mAnnoucements;
     private static final String TAG = "LandingPageActivity:d";
 
     /**
@@ -65,6 +64,7 @@ public class LandingPageActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mCurrCompany = null;
         mCurrChat = null;
+        mAnnoucements = new ArrayList<>();
         mLocalDbHelper = new LocalDbHelper(this);
 
         // Add a listener to the remote database that will update the spinners to any new changes
@@ -89,30 +89,37 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.menu_management);
-        if(mCurrCompany == null) {
-            item.setVisible(false);
+        MenuItem management = menu.findItem(R.id.menu_management);
+        MenuItem settings = menu.findItem(R.id.menu_item_settings);
+        MenuItem create = menu.findItem(R.id.create_company);
+        if (!RemoteDbHelper.isNetworkAvailable(LandingPageActivity.this)) {
+            management.setVisible(false);
+            settings.setVisible(false);
+            create.setVisible(false);
+            return true;
         } else {
-            item.setVisible(true);
+            if (mCurrCompany == null) {
+                management.setVisible(false);
+            } else {
+                management.setVisible(true);
+            }
+            return true;
         }
-        return true;
     }
 
     private void updateFromLocalDB() {
         String userId = mAuth.getCurrentUser().getUid();
 
         mCompanyList = mLocalDbHelper.getCompanyListForCurrUser(userId);
-        View view = findViewById(R.id.companyFeatures);
 
         if (mCompanyList.size() > 0) {
             mCurrCompany = mCompanyList.get(0);
-            view.setVisibility(View.VISIBLE);
             mChatList = mLocalDbHelper.getChatListForSpecifiedCompany(mCurrCompany.getCompanyId());
+            mAnnoucements = mLocalDbHelper.getAnnouncementsForCompany(mCurrCompany.getCompanyId());
             updateUserInterface();
         } else {
             mCurrCompany = null;
             mCurrChat = null;
-            view.setVisibility(View.GONE);
             TextView title = (TextView) findViewById(R.id.selectedCompany);
             title.setText(getString(R.string.no_company));
         }
@@ -122,19 +129,42 @@ public class LandingPageActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             mCurrCompany = mCompanyList.get(position);
-            mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
+            if (RemoteDbHelper.isNetworkAvailable(LandingPageActivity.this)) {
+                mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
+                mAnnoucements = RemoteDbHelper.getAnnouncementsForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
+            } else {
+                mChatList = mLocalDbHelper.getChatListForSpecifiedCompany(mCurrCompany.getCompanyId());
+                mAnnoucements = mLocalDbHelper.getAnnouncementsForCompany(mCurrCompany.getCompanyId());
+            }
             updateUserInterface();
         }
     }
 
     private void updateUserInterface(){
+        updateVisibility();
         updateSpinner();
+        updateAnnouncements();
         updateTitle();
+    }
+
+    private void updateVisibility() {
+        View view = findViewById(R.id.companyFeatures);
+        if (mCompanyList.size() > 0) {
+            view.setVisibility(View.VISIBLE);
+        } else {
+            view.setVisibility(View.GONE);
+        }
     }
 
     private void updateTitle() {
         TextView title = (TextView)findViewById(R.id.selectedCompany);
         title.setText(mCurrCompany.getCompanyName());
+    }
+
+    private void updateAnnouncements() {
+        ArrayAdapter<String> announcementsAdapter = new ArrayAdapter<>(LandingPageActivity.this, android.R.layout.simple_list_item_1, mAnnoucements);
+        ListView announcementsList = (ListView) findViewById(R.id.announcements);
+        announcementsList.setAdapter(announcementsAdapter);
     }
 
     private void updateSpinner(){
@@ -179,6 +209,8 @@ public class LandingPageActivity extends AppCompatActivity {
                 if (mCompanyList.size() > 0) {
                     mCurrCompany = mCompanyList.get(0);
                     mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
+                    mAnnoucements = RemoteDbHelper.getAnnouncementsForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
+                    updateUserInterface();
                 }
             }
 
