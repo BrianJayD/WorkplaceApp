@@ -21,4 +21,4 @@ This is a repository to hold the code for CSCI 4100U's final project.
 | Settings | Akira | In place functionally. Needs styling. Possibly move Comp. Sign Up into here.
 | Landing Page | Akira | Needs alot of styling.
 | Google Maps | N/A | Not started
-| Google Calendar | N/A | Not started
+| Google Calendar | Brian | Layouts in place. Needs SQL & Firebase implementation
