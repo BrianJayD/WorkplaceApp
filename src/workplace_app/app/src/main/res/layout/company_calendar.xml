@@ -8,16 +8,27 @@
         android:id="@+id/shift_calendar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#dddddd">
+        android:background="#dddddd"
+        android:layout_alignParentTop="true">
 
     </CalendarView>
+
+    <TextView
+        android:id="@+id/textview_shifts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/shifts"
+        android:textStyle="bold"
+        android:textSize="26sp"
+        android:layout_below="@+id/shift_calendar"
+        android:gravity="center"/>
 
 
     <ListView
         android:id="@+id/shift_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/shift_calendar">
+        android:layout_below="@id/textview_shifts">
 
     </ListView>
 
