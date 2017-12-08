@@ -39,17 +39,14 @@ public class CompanyManagement extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mLocalDbHelper = new LocalDbHelper(this);
         mPermission = mLocalDbHelper.getPermissionsForUserCompany(mAuth.getUid(), mCurrCompany);
-        View adminFeatures = findViewById(R.id.adminFeatures);
-        if (mPermission == Integer.parseInt(RemoteDbHelper.ADMIN)) {
-            adminFeatures.setVisibility(View.VISIBLE);
-        } else {
-            adminFeatures.setVisibility(View.GONE);
-        }
+        updateVisibility();
 
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
+                mPermission = RemoteDbHelper.getPermissionForCurrUser(mDataSnapShot, mAuth.getUid(), mCurrCompany, CompanyManagement.this, mLocalDbHelper);
+                updateVisibility();
             }
 
             @Override
@@ -57,6 +54,15 @@ public class CompanyManagement extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void updateVisibility() {
+        View adminFeatures = findViewById(R.id.adminFeatures);
+        if (mPermission == Integer.parseInt(RemoteDbHelper.ADMIN)) {
+            adminFeatures.setVisibility(View.VISIBLE);
+        } else {
+            adminFeatures.setVisibility(View.GONE);
+        }
     }
 
     /**
@@ -89,6 +95,20 @@ public class CompanyManagement extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(CompanyManagement.this, R.string.chat_room_not_created,
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    public void handleAddAnnouncement(View view) {
+        String announcement = ((EditText)findViewById(R.id.newAnnouncement)).getText().toString();
+        if (!announcement.isEmpty()) {
+            boolean result = RemoteDbHelper.createAnnouncementDbEntry(mDatabase, mCurrCompany, announcement, CompanyManagement.this);
+            if (result) {
+                Toast.makeText(CompanyManagement.this, R.string.announcement_created,
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(CompanyManagement.this, R.string.announcement_not_created,
                         Toast.LENGTH_SHORT).show();
             }
         }
