@@ -86,6 +86,9 @@ public class LandingPageActivity extends AppCompatActivity {
 
         // Force onPrepareOptionsMenu to be called again
         invalidateOptionsMenu();
+
+        // Updates UI
+        updateUserInterface();
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
@@ -120,6 +123,7 @@ public class LandingPageActivity extends AppCompatActivity {
         } else {
             mCurrCompany = null;
             mCurrChat = null;
+            mAnnoucements = null;
             TextView title = (TextView) findViewById(R.id.selectedCompany);
             title.setText(getString(R.string.no_company));
         }
