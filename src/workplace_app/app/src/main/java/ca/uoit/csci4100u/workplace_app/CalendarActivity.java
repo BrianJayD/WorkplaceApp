@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -55,6 +56,7 @@ public class CalendarActivity extends AppCompatActivity {
     private Dialog myDialog;
     private Spinner memberSpinner;
     private TimePicker shiftTimePicker;
+    private ListView shiftListView;
 
     private String currCompanyId, selectDate;
     private int mYear, mMonth, mDay;
@@ -77,6 +79,7 @@ public class CalendarActivity extends AppCompatActivity {
         databaseListener();
 
         shiftCalendar = (CalendarView)findViewById(R.id.shift_calendar);
+        shiftListView = (ListView)findViewById(R.id.shift_list);
         shiftCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int day) {
@@ -84,8 +87,10 @@ public class CalendarActivity extends AppCompatActivity {
                 mYear = year;
                 mDay = day;
                 selectDate = mYear + "/" + mMonth + "/" + mDay;
-                Toast.makeText(getApplicationContext(), selectDate, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), selectDate, 200).show();
                 databaseListener();
+                Log.i("CHANGED", selectDate);
+                displayShifts();
             }
         });
 
@@ -118,8 +123,6 @@ public class CalendarActivity extends AppCompatActivity {
      * @param view The view that will be clicked (Button)
      */
     public void newShift(View view) {
-
-        displayShifts();
 
         // OnClickListener for the close button
         textClose.setOnClickListener(new View.OnClickListener() {
@@ -200,12 +203,21 @@ public class CalendarActivity extends AppCompatActivity {
         return newHour;
     }
 
-    public void displayShifts() {
+    public void displayShifts(String date) {
+        List<String> shiftDetails = new ArrayList<>();
+
         Log.i("Start", "Yes");
         for (int i = 0; i < shiftList.size(); i++) {
-            Log.i("SHIFT", shiftList.get(i).getDate());
+            String details = shiftList.get(i).getName() + " - " + shiftList.get(i).getDate() + " "
+                    + shiftList.get(i).getTime();
+            Log.i("SHIFT", details);
+            shiftDetails.add(details);
         }
         Log.i("End", "Yes");
+
+        ArrayAdapter<String> shiftDetailArray = new ArrayAdapter<String>(CalendarActivity.this,
+                android.R.layout.simple_list_item_1, shiftDetails);
+        shiftListView.setAdapter(shiftDetailArray);
 
     }
 }
