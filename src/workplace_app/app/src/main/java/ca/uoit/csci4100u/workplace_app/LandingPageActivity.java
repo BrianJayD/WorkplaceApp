@@ -88,7 +88,7 @@ public class LandingPageActivity extends AppCompatActivity {
         invalidateOptionsMenu();
 
         // Updates UI
-        updateUserInterface();
+        //updateUserInterface();
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
