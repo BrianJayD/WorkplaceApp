@@ -79,7 +79,7 @@
         android:textSize="16sp"/>
 
     <TimePicker
-        android:id="@+id/shift_date_picker"
+        android:id="@+id/shift_time_picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"

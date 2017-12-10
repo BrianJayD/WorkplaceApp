@@ -17,6 +17,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,6 +34,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Member;
+import ca.uoit.csci4100u.workplace_app.inc.Shift;
 import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
 import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
 
@@ -52,10 +54,12 @@ public class CalendarActivity extends AppCompatActivity {
     private CalendarView shiftCalendar;
     private Dialog myDialog;
     private Spinner memberSpinner;
+    private TimePicker shiftTimePicker;
 
     private String currCompanyId, selectDate;
     private int mYear, mMonth, mDay;
     private List<Member> membersList;
+    private List<Shift> shiftList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,17 +74,21 @@ public class CalendarActivity extends AppCompatActivity {
         currCompanyId = intent.getStringExtra("companyId");
         Log.i("BRIAN", currCompanyId);
 
+        databaseListener();
+
         shiftCalendar = (CalendarView)findViewById(R.id.shift_calendar);
         shiftCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(@NonNull CalendarView calendarView, int year, int month, int day) {
-                month+=1; //Displays actual month
-                selectDate = year + "/" + month + "/" + day;
+                mMonth = month+=1; //Displays actual month
+                mYear = year;
+                mDay = day;
+                selectDate = mYear + "/" + mMonth + "/" + mDay;
                 Toast.makeText(getApplicationContext(), selectDate, Toast.LENGTH_LONG).show();
+                databaseListener();
             }
         });
 
-        databaseListener();
 
     }
 
@@ -89,12 +97,18 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        mYear = 1111;
+        mMonth = 01;
+        mDay = 01;
+        selectDate = mYear + "/" + mMonth + "/" + mDay;
+
         databaseListener();
 
         myDialog.setContentView(R.layout.add_shift);
         textClose = (TextView)myDialog.findViewById(R.id.close_add);
         editDate = (TextView) myDialog.findViewById(R.id.edit_date);
         btnConfirm = (Button)myDialog.findViewById(R.id.btn_confirm_new_shift);
+        shiftTimePicker = (TimePicker)myDialog.findViewById(R.id.shift_time_picker);
 
     }
 
@@ -105,12 +119,16 @@ public class CalendarActivity extends AppCompatActivity {
      */
     public void newShift(View view) {
 
+        displayShifts();
+
+        // OnClickListener for the close button
         textClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 myDialog.dismiss();
             }
         });
+
 
         List<String> memberNames = new ArrayList<>();
 
@@ -126,6 +144,18 @@ public class CalendarActivity extends AppCompatActivity {
         memberSpinner = (Spinner)myDialog.findViewById(R.id.spinner_employee);
         editDate.setHint(selectDate);
         memberSpinner.setAdapter(memberArrayAdapter);
+
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String selectedMemberId = membersList.get(memberSpinner.getSelectedItemPosition()).getMemberId();
+                String selectedMemberName = membersList.get(memberSpinner.getSelectedItemPosition()).getMemberName();
+                String shiftTime = convertTime(shiftTimePicker.getHour(), shiftTimePicker.getMinute());
+                Log.i("SHIFT", shiftTime);
+                RemoteDbHelper.createShifts(mDatabase, currCompanyId, selectedMemberName, selectedMemberId, selectDate, shiftTime, CalendarActivity.this);
+            }
+        });
+
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         myDialog.show();
 
@@ -142,6 +172,9 @@ public class CalendarActivity extends AppCompatActivity {
 
                 membersList = RemoteDbHelper.getCompanyMembers(mDataSnapShot, currCompanyId,
                         mLocalDbHelper, CalendarActivity.this);
+
+                shiftList = RemoteDbHelper.getShiftsForDay(mDataSnapShot, currCompanyId, selectDate, CalendarActivity.this);
+                Log.i("LISTENER", "");
             }
 
             @Override
@@ -149,5 +182,30 @@ public class CalendarActivity extends AppCompatActivity {
                 Log.i("DATABASE LISTENER", "FAILED");
             }
         });
+    }
+
+    private String convertTime(int hour, int min) {
+        String newHour = hour + "";
+        Log.i("HOUR", Integer.toString(hour));
+        if (hour == 0) {
+            newHour = 12 + ":" + String.format("%02d",min) + "AM";
+        } else if (hour == 12) {
+            newHour = String.format("%02d", hour) + ":" + String.format("%02d",min) + "PM";
+        } else if (hour < 12 && hour != 0) {
+            newHour = String.format("%02d", hour) + ":" + String.format("%02d",min) + "AM";
+        } else if (hour > 12) {
+            newHour = String.format("%02d", (hour % 12)) + ":" + String.format("%02d",min) + "PM";
+        }
+
+        return newHour;
+    }
+
+    public void displayShifts() {
+        Log.i("Start", "Yes");
+        for (int i = 0; i < shiftList.size(); i++) {
+            Log.i("SHIFT", shiftList.get(i).getDate());
+        }
+        Log.i("End", "Yes");
+
     }
 }

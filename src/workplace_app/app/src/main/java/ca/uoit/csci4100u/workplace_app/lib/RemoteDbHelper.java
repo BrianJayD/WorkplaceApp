@@ -17,6 +17,7 @@ import ca.uoit.csci4100u.workplace_app.inc.Member;
 import ca.uoit.csci4100u.workplace_app.inc.Message;
 import ca.uoit.csci4100u.workplace_app.inc.Chat;
 import ca.uoit.csci4100u.workplace_app.inc.Company;
+import ca.uoit.csci4100u.workplace_app.inc.Shift;
 
 /**
  * A helper class meant to do database functionality
@@ -35,6 +36,9 @@ public class RemoteDbHelper {
     private static final String EMAIL = "email";
     private static final String CHAT_NAME = "chat_name";
     private static final String ANNOUNCEMENTS = "announcements";
+    private static final String SHIFTS = "shifts";
+    private static final String DATE = "date";
+    private static final String TIME = "time";
     public static final String ADMIN = "3";
     public static final String MODERATOR = "2";
     public static final String MEMBER = "1";
@@ -425,4 +429,32 @@ public class RemoteDbHelper {
         return memberList;
     }
 
+    public static boolean createShifts(DatabaseReference database, String companyId, String name, String memberId, String shiftDate, String shiftTime, Context context) {
+        if (isNetworkAvailable(context)) {
+
+            Shift newShift = new Shift(name, memberId, shiftDate, shiftTime);
+
+            String dateKey = database.child(COMPANIES).child(companyId).child(SHIFTS).child(shiftDate).push().getKey();
+            database.child(COMPANIES).child(companyId).child(SHIFTS).child(shiftDate).child(dateKey).setValue(newShift);
+            return true;
+        }
+        return false;
+    }
+
+
+    public static List<Shift> getShiftsForDay(DataSnapshot dataSnapshot, String companyId, String date, Context context) {
+        List<Shift> shiftList = new ArrayList<>();
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> shifts = dataSnapshot.child(COMPANIES).child(companyId).child(SHIFTS).child(date).getChildren();
+
+            for (DataSnapshot shift : shifts) {
+                Shift mShift = shift.getValue(Shift.class);
+
+                shiftList.add(mShift);
+            }
+
+        }
+
+        return shiftList;
+    }
 }
