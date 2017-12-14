@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/shift_holder"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#ccc"
+        android:layout_centerInParent="true"
+        android:layout_margin="50dp"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/name_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="@string/name"
+            android:textSize="26sp"
+            android:gravity="center"
+            android:layout_margin="10dp"
+            android:layout_weight="1"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="2"
+            android:layout_marginLeft="10dp"
+            android:background="#eee">
+
+            <TextView
+                android:id="@+id/date_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/date"
+                android:layout_weight="1"
+                android:gravity="center"/>
+
+            <TextView
+                android:id="@+id/time_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/time"
+                android:layout_weight="1"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_below="@id/shift_holder"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="15dp">
+
+        <Button
+            android:id="@+id/btn_ufg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="Up For Grabs"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btn_take_shift"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="Take Shift"
+            android:layout_weight="1"/>
+
+
+        <Button
+            android:id="@+id/btn_trade_shift"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="Trade"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:text="@string/back"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+</RelativeLayout>
