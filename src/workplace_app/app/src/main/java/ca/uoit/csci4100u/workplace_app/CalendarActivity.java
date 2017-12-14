@@ -1,13 +1,11 @@
 package ca.uoit.csci4100u.workplace_app;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -15,8 +13,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,10 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Member;
@@ -90,10 +83,10 @@ public class CalendarActivity extends AppCompatActivity {
                 mYear = year;
                 mDay = day;
                 selectDate = mYear + "/" + mMonth + "/" + mDay;
-                Toast.makeText(getApplicationContext(), selectDate, 200).show();
+                Toast.makeText(getApplicationContext(), selectDate, Toast.LENGTH_SHORT).show();
                 databaseListener();
-                Log.i("CHANGED", selectDate);
                 displayShifts();
+                Log.i("CLICKED 1", Integer.toString(shiftList.size()));
             }
         });
 
@@ -181,6 +174,7 @@ public class CalendarActivity extends AppCompatActivity {
 
                 shiftList = RemoteDbHelper.getShiftsForDay(mDataSnapShot, currCompanyId, selectDate, CalendarActivity.this);
                 Log.i("LISTENER", "");
+                displayShifts();
             }
 
             @Override
@@ -218,8 +212,12 @@ public class CalendarActivity extends AppCompatActivity {
 
                 view.setSelected(true);
 
-                Log.i("CLICKED", mAuth.getUid());
-                Log.i("CLICKED", selectShift.getMemberId());
+                Intent intent = new Intent(getBaseContext(), ShiftActions.class);
+                intent.putExtra("memberId", selectShift.getMemberId());
+                intent.putExtra("memberName", selectShift.getName());
+                intent.putExtra("shiftDate", selectShift.getDate());
+                intent.putExtra("shiftTime", selectShift.getTime());
+                startActivity(intent);
 
             }
         });
