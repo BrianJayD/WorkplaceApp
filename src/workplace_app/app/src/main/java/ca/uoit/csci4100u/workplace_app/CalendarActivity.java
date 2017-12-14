@@ -7,9 +7,11 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -36,6 +38,7 @@ import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Member;
 import ca.uoit.csci4100u.workplace_app.inc.Shift;
+import ca.uoit.csci4100u.workplace_app.inc.ShiftAdapter;
 import ca.uoit.csci4100u.workplace_app.lib.LocalDbHelper;
 import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
 
@@ -203,21 +206,23 @@ public class CalendarActivity extends AppCompatActivity {
         return newHour;
     }
 
-    public void displayShifts(String date) {
-        List<String> shiftDetails = new ArrayList<>();
+    public void displayShifts() {
 
-        Log.i("Start", "Yes");
-        for (int i = 0; i < shiftList.size(); i++) {
-            String details = shiftList.get(i).getName() + " - " + shiftList.get(i).getDate() + " "
-                    + shiftList.get(i).getTime();
-            Log.i("SHIFT", details);
-            shiftDetails.add(details);
-        }
-        Log.i("End", "Yes");
-
-        ArrayAdapter<String> shiftDetailArray = new ArrayAdapter<String>(CalendarActivity.this,
-                android.R.layout.simple_list_item_1, shiftDetails);
+        final ShiftAdapter shiftDetailArray = new ShiftAdapter(CalendarActivity.this, shiftList);
         shiftListView.setAdapter(shiftDetailArray);
+
+        shiftListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Shift selectShift = shiftList.get(i);
+
+                view.setSelected(true);
+
+                Log.i("CLICKED", mAuth.getUid());
+                Log.i("CLICKED", selectShift.getMemberId());
+
+            }
+        });
 
     }
 }

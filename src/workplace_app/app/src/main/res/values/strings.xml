@@ -71,4 +71,6 @@
     <string name="announcement_not_created">Announcement Not Created</string>
     <string name="no_network_connection">No Network Connection</string>
     <string name="shifts">Shifts</string>
+    <string name="_0_00am">dead_time</string>
+    <string name="name">Name</string>
 </resources>

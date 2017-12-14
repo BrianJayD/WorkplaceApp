@@ -28,7 +28,8 @@
         android:id="@+id/shift_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textview_shifts">
+        android:layout_below="@id/textview_shifts"
+        android:listSelector="@drawable/shift_background_clicked">
 
     </ListView>
 
