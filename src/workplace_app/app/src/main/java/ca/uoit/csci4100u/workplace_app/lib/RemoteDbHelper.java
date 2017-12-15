@@ -547,5 +547,21 @@ public class RemoteDbHelper {
         return dataSnapshot.child(COMPANIES).child(companyId).child("location").getValue().toString();
     }
 
+    public static void tradeShifts(DataSnapshot dataSnapshot, String companyId, String myDate, String myTime, String myId, String newName, String newId, Context context) {
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> myDateShifts = dataSnapshot.child(COMPANIES).child(companyId).child(SHIFTS).child(myDate).getChildren();
+
+            for (DataSnapshot myShift : myDateShifts) {
+                Shift changeShift = myShift.getValue(Shift.class);
+
+                if (changeShift.getMemberId().equals(myId)) {
+                    myShift.getRef().child(VACANT).setValue(0);
+                    myShift.getRef().child(NAME).setValue(newName);
+                    myShift.getRef().child(MEMBER_ID).setValue(newId);
+                }
+            }
+        }
+    }
+
 
 }

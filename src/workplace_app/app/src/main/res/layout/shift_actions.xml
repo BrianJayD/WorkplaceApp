@@ -105,7 +105,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            android:text="Trade"/>
+            android:text="Trade"
+            android:onClick="tradeShift"/>
 
         <Button
             android:id="@+id/btn_back"

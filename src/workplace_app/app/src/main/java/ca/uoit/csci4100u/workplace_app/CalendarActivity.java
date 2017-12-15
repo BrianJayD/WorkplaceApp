@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import ca.uoit.csci4100u.workplace_app.inc.Member;
@@ -74,6 +75,19 @@ public class CalendarActivity extends AppCompatActivity {
 
         databaseListener();
 
+
+        mYear = Calendar.getInstance().get(Calendar.YEAR);
+        mMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
+        mDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        selectDate = mYear + "/" + mMonth + "/" + mDay;
+
+        databaseListener();
+
+        myDialog.setContentView(R.layout.add_shift);
+        textClose = (TextView)myDialog.findViewById(R.id.close_add);
+        editDate = (TextView) myDialog.findViewById(R.id.edit_date);
+        btnConfirm = (Button)myDialog.findViewById(R.id.btn_confirm_new_shift);
+        shiftTimePicker = (TimePicker)myDialog.findViewById(R.id.shift_time_picker);
         shiftCalendar = (CalendarView)findViewById(R.id.shift_calendar);
         shiftListView = (ListView)findViewById(R.id.shift_list);
         shiftCalendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -90,26 +104,6 @@ public class CalendarActivity extends AppCompatActivity {
             }
         });
 
-
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        mYear = 1111;
-        mMonth = 01;
-        mDay = 01;
-        selectDate = mYear + "/" + mMonth + "/" + mDay;
-
-        databaseListener();
-
-        myDialog.setContentView(R.layout.add_shift);
-        textClose = (TextView)myDialog.findViewById(R.id.close_add);
-        editDate = (TextView) myDialog.findViewById(R.id.edit_date);
-        btnConfirm = (Button)myDialog.findViewById(R.id.btn_confirm_new_shift);
-        shiftTimePicker = (TimePicker)myDialog.findViewById(R.id.shift_time_picker);
 
     }
 

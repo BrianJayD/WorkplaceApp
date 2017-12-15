@@ -90,7 +90,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/confirm"
-        android:layout_gravity="center"
-        android:onClick="getMembers"/>
+        android:layout_gravity="center"/>
 
 </LinearLayout>
