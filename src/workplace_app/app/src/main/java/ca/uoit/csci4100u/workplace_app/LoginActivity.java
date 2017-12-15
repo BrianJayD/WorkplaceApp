@@ -1,5 +1,6 @@
 package ca.uoit.csci4100u.workplace_app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import ca.uoit.csci4100u.workplace_app.lib.PermissionChecker;
 
 /**
  * The 'LoginActivity' class which is the first activity that the user sees. This handles the
@@ -20,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class LoginActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private Context context;
 
     /**
      * The onCreate method for the 'LoginActivity' class. This function initializes the activity
@@ -31,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+        context = getBaseContext();
 
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
@@ -41,6 +45,14 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
 //            }
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        new ca.uoit.csci4100u.workplace_app.lib.PermissionChecker(getBaseContext(), this).getPermissions();
+
     }
 
     /**
