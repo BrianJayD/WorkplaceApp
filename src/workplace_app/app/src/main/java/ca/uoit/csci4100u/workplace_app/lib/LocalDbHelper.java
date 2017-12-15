@@ -105,6 +105,17 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         /**
          * TODO: Fill this in
          */
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_COMPANIES);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_USER_COMPANY);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_COMPANY_CHAT);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_MESSAGES);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_CHAT_MESSAGE);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_PERMISSIONS);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + TABLE_ANNOUNCEMENT);
+        onCreate(sqLiteDatabase);
+
     }
 
     public void createUser(String userId, String userName) {
@@ -489,6 +500,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase database = this.getReadableDatabase();
         String announcementsQuery = "Select * from " + TABLE_ANNOUNCEMENT + " WHERE companyId =?";
+
         Cursor cursor = database.rawQuery(announcementsQuery, new String[] {companyId});
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -496,6 +508,7 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             announcements.add(announcement);
             cursor.moveToNext();
         }
+
         return announcements;
     }
 }
