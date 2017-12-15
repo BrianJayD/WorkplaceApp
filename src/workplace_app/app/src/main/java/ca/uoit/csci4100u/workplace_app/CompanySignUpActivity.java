@@ -51,6 +51,7 @@ public class CompanySignUpActivity extends AppCompatActivity {
             if(result) {
                 Toast.makeText(CompanySignUpActivity.this, R.string.company_created_successfully,
                         Toast.LENGTH_SHORT).show();
+                finish();
             } else {
                 Toast.makeText(CompanySignUpActivity.this, R.string.company_not_created,
                         Toast.LENGTH_SHORT).show();
