@@ -253,9 +253,9 @@ public class LandingPageActivity extends AppCompatActivity {
     }
 
     public void handleMaps(View view) {
-        System.out.println("ADDRESS -> " + mCurrCompany.getCompanyName().toString());
         Intent showMap = new Intent(this, MapsActivity.class);
-        showMap.putExtra("location", mCurrCompany.getCompanyLoc().toString());
+        System.out.println("->" + mCurrCompany.getCompanyLoc());
+        showMap.putExtra("location", "300 Borough Dr, Scarborough, ON M1P 4P5");
         startActivity(showMap);
 
     }

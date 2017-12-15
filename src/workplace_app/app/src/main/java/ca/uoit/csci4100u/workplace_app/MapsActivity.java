@@ -1,5 +1,6 @@
 package ca.uoit.csci4100u.workplace_app;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -10,11 +11,13 @@ import android.location.LocationManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -26,8 +29,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private LocationManager manager;
-    private String locName;
-    private double latitude, longitude;
+    private LocationListener locationListener;
+    private String dest, origin;
+
+    protected double oLAT, oLONG, dLAT, dLONG;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +44,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        manager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        /*if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        Intent intent = getIntent();
+        dest = intent.getStringExtra("location");
+
+
+        //get the location service
+        manager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        //request the location update thru location manager
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -54,16 +66,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
+                    oLAT = location.getLatitude();
+                    oLONG = location.getLongitude();
 
-                    LatLng latLng = new LatLng(latitude, longitude);
+                    Address address = forwardGeocode(dest);
+                    if(address != null){
+                        dLAT = address.getLatitude();
+                        dLONG = address.getLongitude();
+                    }
+
+                    LatLng destination = new LatLng(dLAT, dLONG);
+
+
+                    LatLng latLng = new LatLng(oLAT, oLONG);
 
                     Geocoder geocoder = new Geocoder(getApplicationContext());
                     try {
-                        List<Address> list = geocoder.getFromLocation(latitude, longitude, 1);
-                        String data = list.get(0).getAddressLine(0);
-                        mMap.addMarker(new MarkerOptions().position(latLng).title(data));
+                        List<Address> list = geocoder.getFromLocation(oLAT, oLONG, 1);
+                        origin = list.get(0).getAddressLine(0);
+                        mMap.addMarker(new MarkerOptions().position(latLng).title("Your Location"));
+                        mMap.addMarker(new MarkerOptions().position(destination).title("Your Workplace"));
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.2f));
                         mMap.setTrafficEnabled(true);
                         mMap.setBuildingsEnabled(true);
@@ -92,16 +114,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
-                    double latitude = location.getLatitude();
-                    double longitude = location.getLongitude();
+                    oLAT = location.getLatitude();
+                    oLONG = location.getLongitude();
 
-                    LatLng latLng = new LatLng(latitude, longitude);
+                    Address address = forwardGeocode(dest);
+                    if(address != null){
+                        dLAT = address.getLatitude();
+                        dLONG = address.getLongitude();
+                    }
+
+                    LatLng destination = new LatLng(dLAT, dLONG);
+
+
+                    LatLng latLng = new LatLng(oLAT, oLONG);
 
                     Geocoder geocoder = new Geocoder(getApplicationContext());
                     try {
-                        List<Address> list = geocoder.getFromLocation(latitude, longitude, 1);
-                        String data = list.get(0).getAddressLine(0);
-                        mMap.addMarker(new MarkerOptions().position(latLng).title(data));
+                        List<Address> list = geocoder.getFromLocation(oLAT, oLONG, 1);
+                        origin = list.get(0).getAddressLine(0);
+                        mMap.addMarker(new MarkerOptions().position(latLng).title("Your Location"));
+                        mMap.addMarker(new MarkerOptions().position(destination).title("Your Workplace"));
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.2f));
                         mMap.setTrafficEnabled(true);
                         mMap.setBuildingsEnabled(true);
@@ -126,20 +158,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
             });
-        }*/
-        Intent intent = getIntent();
-        locName = intent.getStringExtra("location");
-
-        Address locationAddress = forwardGeocode(locName);
-        if(locationAddress != null){
-            latitude = locationAddress.getLatitude();
-            longitude = locationAddress.getLongitude();
         }
-
+        //manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
     }
 
-
-    private Address forwardGeocode(String locationName) {
+    public Address forwardGeocode(String locationName) {
         if (Geocoder.isPresent()) {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
@@ -169,23 +192,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
 
-        LatLng position = new LatLng(latitude, longitude);
-
-        // centre the map around the specified location
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(position));
-
-        // add a marker at the specified location
-        MarkerOptions options = new MarkerOptions();
-        mMap.addMarker(options.position(position).title(locName));
-
-        // configure the map settings
-        mMap.setTrafficEnabled(true);
-        mMap.setBuildingsEnabled(true);
-        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
-
-        // enable the zoom controls
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        // Add a marker in Sydney and move the camera
+//        LatLng sydney = new LatLng(-34, 151);
+//        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+//        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
 }
