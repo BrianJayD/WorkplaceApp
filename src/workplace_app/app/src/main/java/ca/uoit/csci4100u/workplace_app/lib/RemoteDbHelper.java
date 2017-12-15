@@ -557,7 +557,7 @@ public class RemoteDbHelper {
             for (DataSnapshot myShift : myDateShifts) {
                 Shift changeShift = myShift.getValue(Shift.class);
 
-                if (changeShift.getMemberId().equals(myId)) {
+                if (changeShift.getMemberId().equals(myId) && changeShift.getTime().equals(myTime)) {
                     myShift.getRef().child(VACANT).setValue(0);
                     myShift.getRef().child(NAME).setValue(newName);
                     myShift.getRef().child(MEMBER_ID).setValue(newId);
