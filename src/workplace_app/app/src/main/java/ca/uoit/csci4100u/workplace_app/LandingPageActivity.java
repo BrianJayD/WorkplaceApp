@@ -186,8 +186,15 @@ public class LandingPageActivity extends AppCompatActivity {
 
     private void populateDrawer() {
         ListView drawerList = (ListView)findViewById(R.id.left_drawer);
+
+        List<String> companyNames = new ArrayList<>();
+
+        for (int i = 0; i < mCompanyList.size(); i++) {
+            companyNames.add(mCompanyList.get(i).getCompanyName());
+        }
+
         drawerList.setAdapter(new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, mCompanyList));
+                android.R.layout.simple_list_item_1, companyNames));
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
     }
 
