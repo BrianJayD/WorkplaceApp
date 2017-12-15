@@ -44,6 +44,7 @@ public class RemoteDbHelper {
     public static final String MEMBER = "1";
     public static final String COMPANY_ID = "company_id";
     public static final String CHAT_ID = "chat_id";
+    public static final String LOCATION = "location";
 
     // Constants
     private static final String EMPTY_STRING = "";
@@ -120,7 +121,7 @@ public class RemoteDbHelper {
 
             String companyId = database.child(COMPANY_NAME).push().getKey();
             database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyName);
-            database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyLoc);
+            database.child(COMPANIES).child(companyId).child(LOCATION).setValue(companyLoc);
 
             createChatDbEntry(database, companyId, companyName, context);
             database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
@@ -438,7 +439,7 @@ public class RemoteDbHelper {
     public static boolean createShifts(DatabaseReference database, String companyId, String name, String memberId, String shiftDate, String shiftTime, Context context) {
         if (isNetworkAvailable(context)) {
 
-            Shift newShift = new Shift(name, memberId, shiftDate, shiftTime);
+            Shift newShift = new Shift(name, memberId, shiftDate, shiftTime, 0);
 
             String dateKey = database.child(COMPANIES).child(companyId).child(SHIFTS).child(shiftDate).push().getKey();
             database.child(COMPANIES).child(companyId).child(SHIFTS).child(shiftDate).child(dateKey).setValue(newShift);
