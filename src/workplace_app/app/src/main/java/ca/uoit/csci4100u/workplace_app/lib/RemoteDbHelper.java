@@ -543,4 +543,9 @@ public class RemoteDbHelper {
         }
     }
 
+    public static String getCompanyLocation(DataSnapshot dataSnapshot, String companyId) {
+        return dataSnapshot.child(COMPANIES).child(companyId).child("location").getValue().toString();
+    }
+
+
 }
