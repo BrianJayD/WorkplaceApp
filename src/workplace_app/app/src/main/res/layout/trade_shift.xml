@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#aaaaaa"
+    android:layout_gravity="center">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/trade_shift"
+            android:textSize="26sp"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+            android:layout_gravity="center"
+            android:layout_centerInParent="true"/>
+
+        <TextView
+            android:id="@+id/close_trade"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:text="@string/x"
+            android:textStyle="bold"
+            android:layout_alignParentEnd="true"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:background="@drawable/circle_background"
+            android:layout_margin="3dp"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_shift"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:textStyle="bold"/>
+
+    <Spinner
+        android:id="@+id/spinner_shift"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:gravity="center"/>
+
+    <Button
+        android:id="@+id/btn_confirm_trade"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/confirm"
+        android:layout_gravity="center"/>
+
+</LinearLayout>
