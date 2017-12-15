@@ -152,6 +152,8 @@ public class CalendarActivity extends AppCompatActivity {
                 String shiftTime = convertTime(shiftTimePicker.getHour(), shiftTimePicker.getMinute());
                 Log.i("SHIFT", shiftTime);
                 RemoteDbHelper.createShifts(mDatabase, currCompanyId, selectedMemberName, selectedMemberId, selectDate, shiftTime, CalendarActivity.this);
+                Toast.makeText(CalendarActivity.this, "Shift Added", Toast.LENGTH_SHORT).show();
+                myDialog.dismiss();
             }
         });
 

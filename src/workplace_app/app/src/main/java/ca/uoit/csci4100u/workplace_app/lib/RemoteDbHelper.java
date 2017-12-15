@@ -507,7 +507,7 @@ public class RemoteDbHelper {
         return shiftDetails;
     }
 
-    public static void updateVacant(DataSnapshot dataSnapshot, DatabaseReference database, final String companyId, String date, String memberId, int vacant, Context context) {
+    public static void updateVacant(DataSnapshot dataSnapshot, final String companyId, String date, String memberId, int vacant, Context context) {
 
         if (isNetworkAvailable(context)) {
             Iterable<DataSnapshot> shifts = dataSnapshot.child(COMPANIES).child(companyId).child(SHIFTS).child(date).getChildren();
@@ -526,4 +526,5 @@ public class RemoteDbHelper {
             }
         }
     }
+
 }
