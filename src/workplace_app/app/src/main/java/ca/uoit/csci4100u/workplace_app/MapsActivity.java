@@ -3,6 +3,7 @@ package ca.uoit.csci4100u.workplace_app;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,21 +21,18 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-
     private GoogleMap mMap;
     private LocationManager manager;
     private LocationListener locationListener;
     private String dest, origin;
-
     protected double oLAT, oLONG, dLAT, dLONG;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +41,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
         Intent intent = getIntent();
         dest = intent.getStringExtra("location");
-
-
         //get the location service
         manager = (LocationManager) getSystemService(LOCATION_SERVICE);
         //request the location update thru location manager
@@ -68,18 +62,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onLocationChanged(Location location) {
                     oLAT = location.getLatitude();
                     oLONG = location.getLongitude();
-
                     Address address = forwardGeocode(dest);
                     if(address != null){
                         dLAT = address.getLatitude();
                         dLONG = address.getLongitude();
                     }
-
                     LatLng destination = new LatLng(dLAT, dLONG);
-
-
                     LatLng latLng = new LatLng(oLAT, oLONG);
-
                     Geocoder geocoder = new Geocoder(getApplicationContext());
                     try {
                         List<Address> list = geocoder.getFromLocation(oLAT, oLONG, 1);
@@ -87,6 +76,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mMap.addMarker(new MarkerOptions().position(latLng).title("Your Location"));
                         mMap.addMarker(new MarkerOptions().position(destination).title("Your Workplace"));
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.2f));
+                        mMap.addPolygon(new PolygonOptions()
+                                .add(latLng, destination)
+                                .strokeColor(Color.BLUE));
                         mMap.setTrafficEnabled(true);
                         mMap.setBuildingsEnabled(true);
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
@@ -94,20 +86,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         e.printStackTrace();
                     }
                 }
-
                 @Override
                 public void onStatusChanged(String s, int i, Bundle bundle) {
-
                 }
-
                 @Override
                 public void onProviderEnabled(String s) {
-
                 }
-
                 @Override
                 public void onProviderDisabled(String s) {
-
                 }
             });
         }else if(manager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
@@ -116,18 +102,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onLocationChanged(Location location) {
                     oLAT = location.getLatitude();
                     oLONG = location.getLongitude();
-
                     Address address = forwardGeocode(dest);
                     if(address != null){
                         dLAT = address.getLatitude();
                         dLONG = address.getLongitude();
                     }
-
                     LatLng destination = new LatLng(dLAT, dLONG);
-
-
                     LatLng latLng = new LatLng(oLAT, oLONG);
-
                     Geocoder geocoder = new Geocoder(getApplicationContext());
                     try {
                         List<Address> list = geocoder.getFromLocation(oLAT, oLONG, 1);
@@ -135,6 +116,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mMap.addMarker(new MarkerOptions().position(latLng).title("Your Location"));
                         mMap.addMarker(new MarkerOptions().position(destination).title("Your Workplace"));
                         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12.2f));
+                        mMap.addPolygon(new PolygonOptions()
+                                .add(latLng, destination)
+                                .strokeColor(Color.BLUE));
+
                         mMap.setTrafficEnabled(true);
                         mMap.setBuildingsEnabled(true);
                         mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
@@ -142,33 +127,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         e.printStackTrace();
                     }
                 }
-
                 @Override
                 public void onStatusChanged(String s, int i, Bundle bundle) {
-
                 }
-
                 @Override
                 public void onProviderEnabled(String s) {
-
                 }
-
                 @Override
                 public void onProviderDisabled(String s) {
-
                 }
             });
         }
         //manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
     }
-
     public Address forwardGeocode(String locationName) {
         if (Geocoder.isPresent()) {
             Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-
             try {
                 List<Address> results = geocoder.getFromLocationName(locationName, 1);
-
                 if (results.size() > 0) {
                     return results.get(0);
                 }
@@ -176,11 +152,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
         }
-
         return null;
     }
-
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -194,5 +167,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
     }
-
 }
