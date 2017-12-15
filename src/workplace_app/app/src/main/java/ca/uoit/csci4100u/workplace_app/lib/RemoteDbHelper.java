@@ -109,12 +109,18 @@ public class RemoteDbHelper {
      * @param database The firebase database reference
      * @param companyName A string representation of the company name
      */
-    public static boolean createCompanyDbEntry(FirebaseAuth auth, DatabaseReference database, final String companyName, LocalDbHelper localDbHelper, Context context) {
+    public static boolean createCompanyDbEntry(FirebaseAuth auth,
+                                               DatabaseReference database,
+                                               final String companyName,
+                                               final String companyLoc,
+                                               LocalDbHelper localDbHelper,
+                                               Context context) {
         if (isNetworkAvailable(context)) {
             String userId = auth.getCurrentUser().getUid();
 
             String companyId = database.child(COMPANY_NAME).push().getKey();
             database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyName);
+            database.child(COMPANIES).child(companyId).child(COMPANY_NAME).setValue(companyLoc);
 
             createChatDbEntry(database, companyId, companyName, context);
             database.child(COMPANIES).child(companyId).child(MEMBERS).child(userId).setValue(ADMIN);
@@ -305,7 +311,7 @@ public class RemoteDbHelper {
             Iterable<DataSnapshot> companies = dataSnapshot.child(USERS).child(userId).child(COMPANIES).getChildren();
 
             for (DataSnapshot company : companies) {
-                Company newCompany = new Company(company.getKey().toString(), company.getValue().toString());
+                Company newCompany = new Company(company.getKey().toString(), company.getValue().toString(), company.getValue().toString());
                 companyList.add(newCompany);
             }
             saveCompanyListToLocalDatabase(localDbHelper, companyList, userId);
@@ -316,7 +322,7 @@ public class RemoteDbHelper {
     private static void saveCompanyListToLocalDatabase(LocalDbHelper localDbHelper, List<Company> companyList, String userId) {
         for (Company company : companyList) {
             if (!localDbHelper.checkCompanyExists(company.getCompanyId())) {
-                localDbHelper.createCompany(company.getCompanyId(), company.getCompanyName());
+                localDbHelper.createCompany(company.getCompanyId(), company.getCompanyName(), company.getCompanyLoc());
             }
             if (!localDbHelper.checkUserCompanyExists(userId, company.getCompanyId())) {
                 localDbHelper.createUserCompany(userId, company.getCompanyId());

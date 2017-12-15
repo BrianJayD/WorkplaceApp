@@ -35,7 +35,8 @@ public class LocalDbHelper extends SQLiteOpenHelper {
 
     static final String CREATE_COMPANIES_TABLE = "CREATE TABLE Companies (\n" +
             "   companyId VARCHAR(255) PRIMARY KEY,\n" +
-            "   companyName VARCHAR(255) NOT NULL\n" +
+            "   companyName VARCHAR(255) NOT NULL,\n" +
+            "   companyLoc VARCHAR(255) NOT NULL\n" +
             ")\n";
 
     static final String CREATE_USER_COMPANY_TABLE = "CREATE TABLE UserCompany (\n" +
@@ -129,12 +130,13 @@ public class LocalDbHelper extends SQLiteOpenHelper {
         return userExists;
     }
 
-    public void createCompany(String companyId, String companyName) {
+    public void createCompany(String companyId, String companyName, String companyLoc) {
         SQLiteDatabase database = this.getWritableDatabase();
 
         ContentValues newCompany = new ContentValues();
         newCompany.put("companyId", companyId);
         newCompany.put("companyName", companyName);
+        newCompany.put("companyLoc", companyLoc);
         database.insert(TABLE_COMPANIES, null, newCompany);
         database.close();
     }
@@ -195,7 +197,8 @@ public class LocalDbHelper extends SQLiteOpenHelper {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 String companyName = cursor.getString(1);
-                Company newCompany = new Company(companyId, companyName);
+                String companyLoc = " ";
+                Company newCompany = new Company(companyId, companyName, companyLoc);
                 companyList.add(newCompany);
                 cursor.moveToNext();
             }
