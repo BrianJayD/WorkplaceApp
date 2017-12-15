@@ -80,7 +80,7 @@ public class ShiftActions extends AppCompatActivity {
     }
 
     public void upForGrabs(View view) {
-        RemoteDbHelper.updateVacant(mDataSnapShot, mDatabase, companyId, date, id, 1, ShiftActions.this);
+       RemoteDbHelper.updateVacant(mDataSnapShot, mDatabase, companyId, date, id, 1, ShiftActions.this);
     }
 
     public void updateInfo() {
@@ -100,8 +100,7 @@ public class ShiftActions extends AppCompatActivity {
                 shiftList = RemoteDbHelper.getShiftsForDay(mDataSnapShot, companyId, date,
                         ShiftActions.this);
 
-                currShift = RemoteDbHelper.getShiftDetails(mDataSnapShot, companyId, date, id,
-                        ShiftActions.this);
+                currShift = RemoteDbHelper.getShiftDetails(mDataSnapShot, companyId, date, id, ShiftActions.this);
 
             }
 

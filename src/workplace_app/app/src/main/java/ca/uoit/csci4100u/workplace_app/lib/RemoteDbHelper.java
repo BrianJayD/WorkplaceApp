@@ -2,11 +2,14 @@ package ca.uoit.csci4100u.workplace_app.lib;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -39,12 +42,16 @@ public class RemoteDbHelper {
     private static final String SHIFTS = "shifts";
     private static final String DATE = "date";
     private static final String TIME = "time";
+    private static final String VACANT = "vacant";
     public static final String ADMIN = "3";
     public static final String MODERATOR = "2";
     public static final String MEMBER = "1";
     public static final String COMPANY_ID = "company_id";
     public static final String CHAT_ID = "chat_id";
+
     public static final String LOCATION = "location";
+    
+    public static final String REF = "REFERENCE";
 
     // Constants
     private static final String EMPTY_STRING = "";
@@ -436,6 +443,17 @@ public class RemoteDbHelper {
         return memberList;
     }
 
+    /**
+     *
+     * @param database
+     * @param companyId
+     * @param name
+     * @param memberId
+     * @param shiftDate
+     * @param shiftTime
+     * @param context
+     * @return
+     */
     public static boolean createShifts(DatabaseReference database, String companyId, String name, String memberId, String shiftDate, String shiftTime, Context context) {
         if (isNetworkAvailable(context)) {
 
@@ -463,5 +481,49 @@ public class RemoteDbHelper {
         }
 
         return shiftList;
+    }
+
+    public static Shift getShiftDetails(DataSnapshot dataSnapshot, String companyId, String date, String memberId, Context context) {
+        Shift shiftDetails = new Shift();
+
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> shifts = dataSnapshot.child(COMPANIES).child(companyId).child(SHIFTS).child(date).getChildren();
+
+            for (DataSnapshot shift : shifts) {
+                Shift compShift = shift.getValue(Shift.class);
+
+                if (compShift.getMemberId().equals(memberId)) {
+                    shiftDetails.setMemberId(compShift.getMemberId());
+                    shiftDetails.setName(compShift.getName());
+                    shiftDetails.setDate(compShift.getDate());
+                    shiftDetails.setTime(compShift.getTime());
+                    shiftDetails.setVacant(compShift.getVacant());
+                }
+
+            }
+
+        }
+        Log.i("COMP", shiftDetails.getMemberId());
+        return shiftDetails;
+    }
+
+    public static void updateVacant(DataSnapshot dataSnapshot, DatabaseReference database, final String companyId, String date, String memberId, int vacant, Context context) {
+
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> shifts = dataSnapshot.child(COMPANIES).child(companyId).child(SHIFTS).child(date).getChildren();
+
+            for (DataSnapshot shift : shifts) {
+                Shift getShift = shift.getValue(Shift.class);
+
+                if (getShift.getMemberId().equals(memberId) && (getShift.getVacant() == 0)) {
+
+                    shift.getRef().child("vacant").setValue(1);
+                }
+
+                if (getShift.getMemberId().equals(memberId) && (getShift.getVacant() == 1)) {
+                    shift.getRef().child("vacant").setValue(0);
+                }
+            }
+        }
     }
 }

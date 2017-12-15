@@ -7,8 +7,6 @@ public class Company {
 
     private String companyId;
     private String companyName;
-
-
     private String companyLoc;
 
     /**
