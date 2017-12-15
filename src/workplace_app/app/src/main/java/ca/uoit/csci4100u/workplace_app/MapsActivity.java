@@ -1,5 +1,6 @@
 package ca.uoit.csci4100u.workplace_app;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -19,11 +20,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private LocationManager manager;
+    private String locName;
+    private double latitude, longitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +40,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         manager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        /*if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -122,9 +126,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 }
             });
+        }*/
+        Intent intent = getIntent();
+        locName = intent.getStringExtra("location");
+
+        Address locationAddress = forwardGeocode(locName);
+        if(locationAddress != null){
+            latitude = locationAddress.getLatitude();
+            longitude = locationAddress.getLongitude();
         }
 
+    }
 
+
+    private Address forwardGeocode(String locationName) {
+        if (Geocoder.isPresent()) {
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+
+            try {
+                List<Address> results = geocoder.getFromLocationName(locationName, 1);
+
+                if (results.size() > 0) {
+                    return results.get(0);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return null;
     }
 
 
@@ -139,11 +169,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 10.2f));
+        LatLng position = new LatLng(latitude, longitude);
+
+        // centre the map around the specified location
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(position));
+
+        // add a marker at the specified location
+        MarkerOptions options = new MarkerOptions();
+        mMap.addMarker(options.position(position).title(locName));
+
+        // configure the map settings
+        mMap.setTrafficEnabled(true);
+        mMap.setBuildingsEnabled(true);
+        mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+        // enable the zoom controls
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
     }
 }

@@ -73,4 +73,5 @@
     <string name="shifts">Shifts</string>
     <string name="_0_00am">dead_time</string>
     <string name="name">Name</string>
+    <string name="company_loc">Company Location</string>
 </resources>

@@ -44,8 +44,9 @@ public class CompanySignUpActivity extends AppCompatActivity {
      */
     public void handleCompanySignUp(View view) {
         final String companyName = ((EditText) findViewById(R.id.companyName)).getText().toString();
+        final String companyLoc = ((EditText) findViewById(R.id.companyLoc)).getText().toString();
         if (!companyName.isEmpty()) {
-            boolean result = RemoteDbHelper.createCompanyDbEntry(mAuth, mDatabase, companyName, mLocalDbHelper, CompanySignUpActivity.this);
+            boolean result = RemoteDbHelper.createCompanyDbEntry(mAuth, mDatabase, companyName, companyLoc, mLocalDbHelper, CompanySignUpActivity.this);
 
             if(result) {
                 Toast.makeText(CompanySignUpActivity.this, R.string.company_created_successfully,

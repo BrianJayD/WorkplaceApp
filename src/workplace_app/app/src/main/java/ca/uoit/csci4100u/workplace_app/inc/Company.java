@@ -8,14 +8,18 @@ public class Company {
     private String companyId;
     private String companyName;
 
+
+    private String companyLoc;
+
     /**
      * Constructor to easily create a company
      * @param companyId The company id
      * @param companyName The company name
      */
-    public Company(String companyId, String companyName) {
+    public Company(String companyId, String companyName, String companyLoc) {
         setCompanyId(companyId);
         setCompanyName(companyName);
+        setCompanyLoc(companyLoc);
     }
 
     /**
@@ -50,13 +54,20 @@ public class Company {
         this.companyName = companyName;
     }
 
+    public String getCompanyLoc() {
+        return companyLoc;
+    }
+
+    public void setCompanyLoc(String companyLoc) {
+        this.companyLoc = companyLoc;
+    }
     /**
      * Overridden toString() method to use for the Spinner's ArrayAdapter
      * @return The company name as a string
      */
     @Override
     public String toString() {
-        return getCompanyName();
+        return getCompanyId() + " " + getCompanyName() + " " + getCompanyLoc();
     }
 
 }
