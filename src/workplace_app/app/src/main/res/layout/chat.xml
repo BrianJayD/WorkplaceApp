@@ -24,7 +24,7 @@
         android:layout_alignParentLeft="true"
         android:paddingBottom="2sp"
         android:gravity="center"
-        android:layout_marginBottom="3dp">
+        android:layout_marginBottom="20dp">
 
         <EditText
             android:id="@+id/userMessage"
