@@ -48,8 +48,9 @@ public class RemoteDbHelper {
     public static final String MEMBER = "1";
     public static final String COMPANY_ID = "company_id";
     public static final String CHAT_ID = "chat_id";
-
     public static final String LOCATION = "location";
+    public static final String NAME = "name";
+    public static final String MEMBER_ID = "memberId";
     
     public static final String REF = "REFERENCE";
 
@@ -503,11 +504,10 @@ public class RemoteDbHelper {
             }
 
         }
-        Log.i("COMP", shiftDetails.getMemberId());
         return shiftDetails;
     }
 
-    public static void updateVacant(DataSnapshot dataSnapshot, final String companyId, String date, String memberId, int vacant, Context context) {
+    public static void updateVacant(DataSnapshot dataSnapshot, String companyId, String date, String memberId, Context context) {
 
         if (isNetworkAvailable(context)) {
             Iterable<DataSnapshot> shifts = dataSnapshot.child(COMPANIES).child(companyId).child(SHIFTS).child(date).getChildren();
@@ -517,11 +517,27 @@ public class RemoteDbHelper {
 
                 if (getShift.getMemberId().equals(memberId) && (getShift.getVacant() == 0)) {
 
-                    shift.getRef().child("vacant").setValue(1);
+                    shift.getRef().child(VACANT).setValue(1);
                 }
 
                 if (getShift.getMemberId().equals(memberId) && (getShift.getVacant() == 1)) {
-                    shift.getRef().child("vacant").setValue(0);
+                    shift.getRef().child(VACANT).setValue(0);
+                }
+            }
+        }
+    }
+
+    public static void updateShiftInfo(DataSnapshot dataSnapshot, String companyId, String date, String newMember, String oldMember, String name, Context context) {
+        if (isNetworkAvailable(context)) {
+            Iterable<DataSnapshot> shifts = dataSnapshot.child(COMPANIES).child(companyId).child(SHIFTS).child(date).getChildren();
+
+            for (DataSnapshot shift : shifts) {
+                Shift changeShift = shift.getValue(Shift.class);
+
+                if (changeShift.getMemberId().equals(oldMember) && (changeShift.getVacant() == 1)) {
+                    shift.getRef().child(VACANT).setValue(0);
+                    shift.getRef().child(NAME).setValue(name);
+                    shift.getRef().child(MEMBER_ID).setValue(newMember);
                 }
             }
         }

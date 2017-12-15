@@ -3,6 +3,7 @@ package ca.uoit.csci4100u.workplace_app;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -34,9 +35,8 @@ public class ShiftActions extends AppCompatActivity {
     private DatabaseReference mDatabase;
     private DataSnapshot mDataSnapShot;
 
-    private String id, name, date, time, shiftId, companyId, myId;
+    private String id, name, date, time, shiftId, companyId, myId, myName;
     private int vacant;
-    private TextView nameText, dateText, timeText, status;
     private List shiftList;
     private Shift currShift;
     private Button btnUFG, btnTake;
@@ -46,13 +46,8 @@ public class ShiftActions extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.shift_actions);
 
-        nameText = (TextView)findViewById(R.id.name_text);
-        dateText = (TextView)findViewById(R.id.date_text);
-        timeText = (TextView)findViewById(R.id.time_text);
-        status = (TextView)findViewById(R.id.text_status);
         btnUFG = (Button)findViewById(R.id.btn_ufg);
         btnTake = (Button)findViewById(R.id.btn_take_shift);
-
 
         Intent intent = getIntent();
         id = intent.getStringExtra("memberId");
@@ -62,9 +57,6 @@ public class ShiftActions extends AppCompatActivity {
         vacant = intent.getIntExtra("vacant", 0);
         shiftId = intent.getStringExtra("shiftId");
         companyId = intent.getStringExtra("companyId");
-
-        Log.i("OBTAINED:", id + name + date + time + vacant);
-        Log.i("OBTAINED:", shiftId + " - " + companyId);
 
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
@@ -82,27 +74,27 @@ public class ShiftActions extends AppCompatActivity {
 
     public void upForGrabs(View view) {
         if (currShift.getVacant() == 0) {
-
-            RemoteDbHelper.updateVacant(mDataSnapShot, companyId, date, id, 1, ShiftActions.this);
-            btnUFG.setEnabled(false);
-            btnTake.setEnabled(true);
-
+            RemoteDbHelper.updateVacant(mDataSnapShot, companyId, date, id, ShiftActions.this);
         }
     }
 
     public void takeShift(View view) {
         if (currShift.getVacant() == 1) {
-            RemoteDbHelper.updateVacant(mDataSnapShot, companyId, date, id, 0, ShiftActions.this);
-            btnTake.setEnabled(false);
-            btnUFG.setEnabled(true);
+            RemoteDbHelper.updateVacant(mDataSnapShot, companyId, date, id, ShiftActions.this);
+            RemoteDbHelper.updateShiftInfo(mDataSnapShot, companyId, date, myId, currShift.getMemberId(), myName, ShiftActions.this);
+            id = myId;
         }
     }
 
-    public void updateInfo() {
-
+    public void updateTexts() {
+        Log.i("KL", "" + name);
+        TextView nameText = (TextView)findViewById(R.id.name_text);
         nameText.setText(currShift.getName());
-        dateText.setText(currShift.getDate());
-        timeText.setText(currShift.getTime());
+    }
+
+
+    public void updateButtons() {
+        TextView status = (TextView)findViewById(R.id.text_status);
 
         if ((myId.equals(currShift.getMemberId())) && (currShift.getVacant() == 0)) {
             status.setText("Owned");
@@ -125,8 +117,14 @@ public class ShiftActions extends AppCompatActivity {
             btnUFG.setEnabled(false);
             btnTake.setEnabled(true);
         }
-
     }
+
+    public void updateInfo() {
+        updateTexts();
+        updateButtons();
+        Log.i("KL", "Finish");
+    }
+
 
     public void back(View view) {
         finish();
@@ -138,12 +136,14 @@ public class ShiftActions extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mDataSnapShot = dataSnapshot;
 
-                shiftList = RemoteDbHelper.getShiftsForDay(mDataSnapShot, companyId, date,
-                        ShiftActions.this);
+                myName = RemoteDbHelper.convertUidToDispName(mDataSnapShot, myId, ShiftActions.this);
+
+                shiftList = RemoteDbHelper.getShiftsForDay(mDataSnapShot, companyId, date, ShiftActions.this);
 
                 currShift = RemoteDbHelper.getShiftDetails(mDataSnapShot, companyId, date, id, ShiftActions.this);
 
-                Log.i("UPDATE", currShift.getName());
+                Log.i("KL", "Updating....");
+
                 updateInfo();
 
             }

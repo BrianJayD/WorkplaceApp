@@ -6,7 +6,6 @@ package ca.uoit.csci4100u.workplace_app.inc;
 
 public class Shift {
 
-    private String shiftId;
     private String name;
     private String memberId;
     private String date; // Date format "MM/DD/YYYY"
