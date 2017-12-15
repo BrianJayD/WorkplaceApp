@@ -217,6 +217,8 @@ public class CalendarActivity extends AppCompatActivity {
                 intent.putExtra("memberName", selectShift.getName());
                 intent.putExtra("shiftDate", selectShift.getDate());
                 intent.putExtra("shiftTime", selectShift.getTime());
+                intent.putExtra("vacant", selectShift.getVacant());
+                intent.putExtra("companyId", currCompanyId);
                 startActivity(intent);
 
             }

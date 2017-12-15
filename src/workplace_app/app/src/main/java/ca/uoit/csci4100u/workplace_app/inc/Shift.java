@@ -6,16 +6,19 @@ package ca.uoit.csci4100u.workplace_app.inc;
 
 public class Shift {
 
+    private String shiftId;
     private String name;
     private String memberId;
     private String date; // Date format "MM/DD/YYYY"
-    private String time; //
+    private String time; // Time format 12h clock
+    private int vacant;
 
-    public Shift(String name, String memberId, String date, String time) {
+    public Shift(String name, String memberId, String date, String time, int vacant) {
         this.name = name;
         this.memberId = memberId;
         this.date = date;
         this.time = time;
+        this.vacant = vacant;
     }
 
     public Shift() {}
@@ -50,5 +53,13 @@ public class Shift {
 
     public void setMemberId(String memberId) {
         this.memberId = memberId;
+    }
+
+    public int getVacant() {
+        return vacant;
+    }
+
+    public void setVacant(int vacant) {
+        this.vacant = vacant;
     }
 }
