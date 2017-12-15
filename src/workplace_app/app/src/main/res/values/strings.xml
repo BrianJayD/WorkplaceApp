@@ -76,4 +76,5 @@
     <string name="company_loc">Company Location</string>
     <string name="trade_shift">Trade Shift</string>
     <string name="select_shift">Select Shift</string>
+    <string name="logo">Logo</string>
 </resources>
