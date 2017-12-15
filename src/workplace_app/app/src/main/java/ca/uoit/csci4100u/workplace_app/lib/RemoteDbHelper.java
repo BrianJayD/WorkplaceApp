@@ -543,8 +543,11 @@ public class RemoteDbHelper {
         }
     }
 
-    public static String getCompanyLocation(DataSnapshot dataSnapshot, String companyId) {
-        return dataSnapshot.child(COMPANIES).child(companyId).child("location").getValue().toString();
+    public static String getCompanyLocation(DataSnapshot dataSnapshot, String companyId, Context context) {
+        if (isNetworkAvailable(context)) {
+            return dataSnapshot.child(COMPANIES).child(companyId).child("location").getValue().toString();
+        }
+        return null;
     }
 
     public static void tradeShifts(DataSnapshot dataSnapshot, String companyId, String myDate, String myTime, String myId, String newName, String newId, Context context) {

@@ -37,6 +37,7 @@ import ca.uoit.csci4100u.workplace_app.lib.RemoteDbHelper;
  */
 public class LandingPageActivity extends AppCompatActivity {
 
+    private String location;
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private DataSnapshot mDataSnapShot;
@@ -214,6 +215,8 @@ public class LandingPageActivity extends AppCompatActivity {
                     mCurrCompany = mCompanyList.get(0);
                     mChatList = RemoteDbHelper.getChatListForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
                     mAnnoucements = RemoteDbHelper.getAnnouncementsForSpecifiedCompany(mDataSnapShot, mCurrCompany.getCompanyId(), mLocalDbHelper, LandingPageActivity.this);
+                    location = RemoteDbHelper.getCompanyLocation(mDataSnapShot, mCurrCompany.getCompanyId(), LandingPageActivity.this);
+
                     updateUserInterface();
                 }
             }
@@ -255,7 +258,7 @@ public class LandingPageActivity extends AppCompatActivity {
     public void handleMaps(View view) {
         Intent showMap = new Intent(this, MapsActivity.class);
         System.out.println("->" + mCurrCompany.getCompanyLoc());
-        showMap.putExtra("location", "300 Borough Dr, Scarborough, ON M1P 4P5");
+        showMap.putExtra("location", location);
         startActivity(showMap);
 
     }
