@@ -13,12 +13,14 @@ This is a repository to hold the code for CSCI 4100U's final project.
 
 | Section | Name | Status
 |---|---|---|
-| Sign In | Akira | In place functionally. Needs styling.
-| Acc. Sign Up | Akira | In place functionally. Needs styling.
-| Comp. Sign Up | Akira | In place functionally. Needs styling.
-| Chat | Akira | In place functionally (bare bones). Needs styling and work.
-| Support | Akira | In place functionally. Needs styling.
-| Settings | Akira | In place functionally. Needs styling. Possibly move Comp. Sign Up into here.
-| Landing Page | Akira | Needs alot of styling.
-| Google Maps | N/A | Not started
-| Google Calendar | Brian | Layouts in place. Needs SQL & Firebase implementation
+| Sign In | Akira | Complete, needs finishing touches.
+| Acc. Sign Up | Akira | Complete, needs finishing touches.
+| Comp. Sign Up | Akira | Complete, needs finishing touches.
+| Chat | Akira |  Complete, needs finishing touches.
+| Support | Akira | Complete, needs finishing touches.
+| Settings | Akira | Complete, needs finishing touches.
+| Landing Page | Akira | Complete, needs finishing touches.
+| Google Maps | Saif | Requires touch up.
+| Google Calendar | Brian | Requires touch up.
+| Shift Adding/Switching | Brian | Requires Improvements.
+| Layouts | Brian | Improvements can be made.
